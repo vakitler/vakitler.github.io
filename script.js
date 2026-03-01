@@ -1,27 +1,4 @@
 
-        // Tailwind için Karanlık Mod yapılandırması
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkSurface: '#121418', // Daha ferah hissetmesi için daha derin bir siyah
-                        darkCard: '#1c1f24'
-                    },
-                    animation: {
-                        // Sakinleştirici nefes alma animasyonu
-                        'breathe': 'breathe 8s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        breathe: {
-                            '0%, 100%': { transform: 'scale(0.95)', opacity: '0.3' },
-                            '50%': { transform: 'scale(1.2)', opacity: '0.7' },
-                        }
-                    }
-                }
-            }
-        }
-    
         // --- PWA (Mobil Uygulama) Yükleyicisi ---
         function setupPWA() {
             // Tarayıcıya uygulamanın tam ekran açılması gerektiğini söyleyen Manifest bildirgesi
@@ -94,6 +71,7 @@
                 supportTitle: 'Destek Ol',
                 buyCoffee: 'Bana bir kahve ısmarla',
                 timeToIftar: 'İftara Kalan Süre'
+                ,errAudioAutoplay: 'Ses otomatik çalınamadı. Lütfen sayfaya dokunarak sesi etkinleştirin.'
             },
             en: {
                 appTitle: 'Prayer Times',
@@ -125,6 +103,7 @@
                 supportTitle: 'Support Me',
                 buyCoffee: 'Buy me a coffee',
                 timeToIftar: 'Time to Iftar'
+                ,errAudioAutoplay: 'Audio autoplay blocked. Please interact with the page to enable sound.'
             }
         };
 
@@ -202,9 +181,15 @@
                     document.getElementById('btn-region').disabled = false;
                     document.getElementById('btn-city').disabled = false;
                     
-                    // Açılır menüler tıklandığında hazır olması için arka planda sessizce yükle
-                    fetch(`${API_BASE}/sehirler/${city.country.id}`).then(r => r.json()).then(d => { regionsData = d; }).catch(e=>console.log(e));
-                    fetch(`${API_BASE}/ilceler/${city.region.id}`).then(r => r.json()).then(d => { citiesData = d; }).catch(e=>console.log(e));
+                    // Açılır menüler tıklandığında hazır olması için arka planda sessizce yükle (res.ok kontrolü ile)
+                    fetch(`${API_BASE}/sehirler/${city.country.id}`)
+                        .then(r => { if (!r.ok) throw new Error('Network response was not ok'); return r.json(); })
+                        .then(d => { regionsData = d; })
+                        .catch(e => console.log(e));
+                    fetch(`${API_BASE}/ilceler/${city.region.id}`)
+                        .then(r => { if (!r.ok) throw new Error('Network response was not ok'); return r.json(); })
+                        .then(d => { citiesData = d; })
+                        .catch(e => console.log(e));
                 }
             } else {
                 toggleSettings();
@@ -299,27 +284,37 @@
             }
         }
 
-        // Yardımcı fonksiyon: Verileri listeye basar
+        // Yardımcı fonksiyon: Verileri güvenli şekilde DOM ile listeye basar (XSS koruması)
         function renderList(type, data, idKey, nameKey, filterQuery = "") {
             const list = document.getElementById(`list-${type}`);
             const lowerQuery = filterQuery.toLocaleLowerCase('tr-TR');
-            
-            const filtered = data.filter(item => 
+            list.innerHTML = '';
+
+            const filtered = data.filter(item =>
                 item[nameKey].toLocaleLowerCase('tr-TR').includes(lowerQuery)
             );
 
             if (filtered.length === 0) {
-                list.innerHTML = `<li class="px-4 py-4 text-sm text-slate-500 dark:text-slate-400 text-center font-medium">${t('noResults')}</li>`;
+                const li = document.createElement('li');
+                li.className = 'px-4 py-4 text-sm text-slate-500 dark:text-slate-400 text-center font-medium';
+                li.textContent = t('noResults');
+                list.appendChild(li);
                 return;
             }
 
-            list.innerHTML = filtered.map(item => `
-                <li>
-                    <button type="button" onclick="selectItem('${type}', '${item[idKey]}', '${item[nameKey].replace(/'/g, "'")}')" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                        ${item[nameKey]}
-                    </button>
-                </li>
-            `).join('');
+            filtered.forEach(item => {
+                const li = document.createElement('li');
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'w-full text-left px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors select-item';
+                btn.dataset.id = item[idKey];
+                btn.dataset.name = item[nameKey];
+                btn.textContent = item[nameKey];
+                btn.addEventListener('click', () => selectItem(type, btn.dataset.id, btn.dataset.name));
+
+                li.appendChild(btn);
+                list.appendChild(li);
+            });
         }
 
         // Yardımcı fonksiyon: Liste elemanı seçildiğinde
@@ -342,6 +337,7 @@
         async function loadCountries() {
             try {
                 const res = await fetch(`${API_BASE}/ulkeler`);
+                if (!res.ok) throw new Error('Network response was not ok');
                 countriesData = await res.json();
                 
                 document.getElementById('btn-country').disabled = false;
@@ -365,6 +361,7 @@
 
             try {
                 const res = await fetch(`${API_BASE}/sehirler/${countryId}`);
+                if (!res.ok) throw new Error('Network response was not ok');
                 regionsData = await res.json();
                 
                 btnRegion.disabled = false;
@@ -381,6 +378,7 @@
 
             try {
                 const res = await fetch(`${API_BASE}/ilceler/${regionId}`);
+                if (!res.ok) throw new Error('Network response was not ok');
                 citiesData = await res.json();
                 
                 btnCity.disabled = false;
@@ -435,6 +433,7 @@
             // 2. Önbellekte yoksa veya eskimişse API'den çek
             try {
                 const res = await fetch(`${API_BASE}/vakitler/${cityId}`);
+                if (!res.ok) throw new Error('Network response was not ok');
                 const data = await res.json();
                 localStorage.setItem(cacheKey, JSON.stringify(data)); // Yeni veriyi kaydet
                 
@@ -467,9 +466,18 @@
 
             // Hicri Tarih (Hijri) Yerelleştirme
             const hijriMonths = {
-                'Muharrem': 'Muharram', 'Safer': 'Safar', 'Rebiülevvel': 'Rabi al-Awwal', 'Rebiülahir': 'Rabi al-Thani', 
-                'Cemaziyelevvel': 'Jumada al-Awwal', 'Cemaziyelahir': 'Jumada al-Thani', 'Recep': 'Rajab', 
-                'Şaban': 'Sha'ban', 'Ramazan': 'Ramadan', 'Şevval': 'Shawwal', 'Zilkade': 'Dhu al-Qi'dah', 'Zilhicce': 'Dhu al-Hijjah'
+                'Muharrem': 'Muharram',
+                'Safer': 'Safar',
+                'Rebiülevvel': 'Rabi al-Awwal',
+                'Rebiülahir': 'Rabi al-Thani',
+                'Cemaziyelevvel': 'Jumada al-Awwal',
+                'Cemaziyelahir': 'Jumada al-Thani',
+                'Recep': 'Rajab',
+                'Şaban': "Sha'ban",
+                'Ramazan': 'Ramadan',
+                'Şevval': 'Shawwal',
+                'Zilkade': "Dhu al-Qi'dah",
+                'Zilhicce': 'Dhu al-Hijjah'
             };
             let hijriStr = today.HicriTarihUzun;
             if (currentLang === 'en') {
@@ -504,10 +512,16 @@
                 moonImg.classList.add('hidden');
             }
             
-            // Kıble Saati verisini ekliyoruz
+            // Kıble Saati verisini ekliyoruz (güvenli DOM oluşturma)
             const qiblaEl = document.getElementById('qibla-time');
             if (qiblaEl && today.KibleSaati) {
-                qiblaEl.innerHTML = `<i data-lucide="compass" class="w-3.5 h-3.5 text-slate-400"></i> ${today.KibleSaati}`;
+                qiblaEl.innerHTML = '';
+                const ico = document.createElement('i');
+                ico.setAttribute('data-lucide', 'compass');
+                ico.className = 'w-3.5 h-3.5 text-slate-400';
+                qiblaEl.appendChild(ico);
+                const txt = document.createTextNode(' ' + today.KibleSaati);
+                qiblaEl.appendChild(txt);
             }
 
             const isFriday = dateObj.getDay() === 5; // Cuma günü kontrolü
@@ -522,15 +536,27 @@
                 }
 
                 const card = document.createElement('div');
-                card.className = `m3-card p-5 sm:p-6 flex flex-col items-center justify-center gap-3 border-2 border-transparent transition-all duration-500 hover:-translate-y-1 cursor-default`;
+                card.className = 'm3-card p-5 sm:p-6 flex flex-col items-center justify-center gap-3 border-2 border-transparent transition-all duration-500 hover:-translate-y-1 cursor-default';
                 card.id = `card-${prayer.id}`;
-                card.innerHTML = `
-                    <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-colors">
-                        <i data-lucide="${prayer.icon}" class="w-6 h-6 opacity-80"></i>
-                    </div>
-                    <span class="text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">${pLabel}</span>
-                    <span class="text-2xl font-bold text-slate-800 dark:text-slate-100 time-display tracking-tight">${timeStr}</span>
-                `;
+
+                const iconWrap = document.createElement('div');
+                iconWrap.className = 'p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-colors';
+                const iconEl = document.createElement('i');
+                iconEl.setAttribute('data-lucide', prayer.icon);
+                iconEl.className = 'w-6 h-6 opacity-80';
+                iconWrap.appendChild(iconEl);
+
+                const labelEl = document.createElement('span');
+                labelEl.className = 'text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest';
+                labelEl.textContent = pLabel;
+
+                const timeEl = document.createElement('span');
+                timeEl.className = 'text-2xl font-bold text-slate-800 dark:text-slate-100 time-display tracking-tight';
+                timeEl.textContent = timeStr;
+
+                card.appendChild(iconWrap);
+                card.appendChild(labelEl);
+                card.appendChild(timeEl);
                 container.appendChild(card);
             });
             lucide.createIcons();
@@ -651,8 +677,8 @@
                     document.getElementById('countdown-timer').innerText = "00:00:00";
                     document.getElementById('prayer-progress').style.width = '100%';
                     
-                    // Sesli Bildirim Çal
-                    notificationSound.play().catch(e => console.log("Otomatik ses oynatma engellendi."));
+                    // Sesli Bildirim Çal, eğer tarayıcı engellerse kullanıcıya bilgi ver
+                    notificationSound.play().catch(e => { showMessage(t('errAudioAutoplay')); console.log(e); });
                     
                     // Yeni vakti bulmak için tekrar çalıştır
                     setTimeout(setupNextPrayer, 2000); 
@@ -749,8 +775,16 @@
                 const trMap = { 'ı': 'i', 'ğ': 'g', 'ü': 'u', 'ş': 's', 'ö': 'o', 'ç': 'c', 'İ': 'I', 'Ğ': 'G', 'Ü': 'U', 'Ş': 'S', 'Ö': 'O', 'Ç': 'C' };
                 displayName = name.replace(/[ığüşöçİĞÜŞÖÇ]/g, match => trMap[match]);
             }
-            document.getElementById('current-location-text').innerHTML = 
-                `<i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span>${displayName}</span>`;
+            const locEl = document.getElementById('current-location-text');
+            locEl.innerHTML = '';
+            const ico = document.createElement('i');
+            ico.setAttribute('data-lucide', 'map-pin');
+            ico.className = 'w-3.5 h-3.5';
+            const span = document.createElement('span');
+            span.textContent = displayName;
+            locEl.appendChild(ico);
+            locEl.appendChild(document.createTextNode(' '));
+            locEl.appendChild(span);
             lucide.createIcons();
         }
 
