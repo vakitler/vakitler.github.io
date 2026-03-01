@@ -8,7 +8,17 @@
     <meta name="theme-color" content="#f7f9ff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#121418" media="(prefers-color-scheme: dark)">
     
-    <title>Ezan Vakti</title>
+    <!-- PWA ve iOS Tam Ekran Uygulama Modu Ayarları -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Vakitler">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230061a4' rx='20'/%3E%3Ctext x='50' y='50' font-size='60' text-anchor='middle' dominant-baseline='central' fill='white'%3E%F0%9F%8C%99%3C/text%3E%3C/svg%3E">
+    
+    <!-- Tarayıcı Sekmesi İkonu (Favicon - Hilal) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+    
+    <title>Vakitler</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // Tailwind için Karanlık Mod yapılandırması
@@ -98,11 +108,17 @@
 
     <!-- Header -->
     <header class="p-6 sm:p-8 flex justify-between items-center sticky top-0 bg-[#f7f9ff]/70 dark:bg-[#121418]/70 backdrop-blur-xl z-50 transition-colors duration-700">
-        <div>
-            <h1 id="app-title" class="text-2xl font-medium text-slate-800 dark:text-white tracking-tight">Ezan Vakti</h1>
-            <p id="current-location-text" class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1">
-                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="loc-not-selected">Konum Seçilmedi</span>
-            </p>
+        <div class="flex items-center gap-3.5">
+            <!-- Hilal Logo Kutusu -->
+            <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 dark:shadow-blue-900/50 transition-transform duration-500 hover:scale-105">
+                <i data-lucide="moon" class="w-5 h-5 fill-white"></i>
+            </div>
+            <div>
+                <h1 id="app-title" class="text-2xl font-medium text-slate-800 dark:text-white tracking-tight leading-none">Vakitler</h1>
+                <p id="current-location-text" class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="loc-not-selected">Konum Seçilmedi</span>
+                </p>
+            </div>
         </div>
         <div class="flex gap-2">
             <button onclick="toggleLang()" aria-label="Dili Değiştir" class="p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105 font-bold text-sm">
@@ -279,6 +295,35 @@
     </div>
 
     <script>
+        // --- PWA (Mobil Uygulama) Yükleyicisi ---
+        function setupPWA() {
+            // Tarayıcıya uygulamanın tam ekran açılması gerektiğini söyleyen Manifest bildirgesi
+            const manifest = {
+                name: "Vakitler",
+                short_name: "Vakitler",
+                display: "standalone", // Adres çubuğunu gizler, uygulama gibi açar
+                start_url: window.location.href,
+                background_color: "#f7f9ff",
+                theme_color: "#0061a4",
+                icons: [{
+                    src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='#0061a4' rx='22'/><text x='50' y='50' font-size='55' text-anchor='middle' dominant-baseline='central' fill='white'>🌙</text></svg>`),
+                    sizes: "512x512",
+                    type: "image/svg+xml",
+                    purpose: "any maskable"
+                }]
+            };
+            
+            // Manifest'i HTML'e enjekte et
+            const manifestLink = document.createElement('link');
+            manifestLink.rel = 'manifest';
+            manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+            document.head.appendChild(manifestLink);
+            
+            // Not: İzole tarayıcı ortamlarında blob tabanlı Service Worker kaydı protokol hatalarına yol açabilir.
+            // Bu nedenle, harici dosya erişimi olmayan bu ortamda SW kaydı devre dışı bırakılmıştır.
+        }
+        setupPWA(); // Algoritmayı Başlat
+
         const API_BASE = "https://ezanvakti.emushaf.net";
         let prayerData = null;
         let timerInterval = null;
@@ -293,7 +338,7 @@
 
         const i18n = {
             tr: {
-                appTitle: 'Ezan Vakti',
+                appTitle: 'Vakitler',
                 locNotSelected: 'Konum Seçilmedi',
                 nextPrayer: 'Vakit Hesaplanıyor...',
                 timeUntil: '{prayer} Vaktine Kalan',
