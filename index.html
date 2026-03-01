@@ -13,10 +13,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Vakitler">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%230061a4' rx='20'/%3E%3Ctext x='50' y='50' font-size='60' text-anchor='middle' dominant-baseline='central' fill='white'%3E%F0%9F%8C%99%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%230061a4' rx='5'/%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='white' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     
     <!-- Tarayıcı Sekmesi İkonu (Favicon - Hilal) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='%230061a4' stroke='%230061a4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     
     <title>Vakitler</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -27,17 +27,21 @@
             theme: {
                 extend: {
                     colors: {
-                        darkSurface: '#121418', // Daha ferah hissetmesi için daha derin bir siyah
+                        darkSurface: '#121418', 
                         darkCard: '#1c1f24'
                     },
                     animation: {
-                        // Sakinleştirici nefes alma animasyonu
                         'breathe': 'breathe 8s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s linear infinite',
                     },
                     keyframes: {
                         breathe: {
                             '0%, 100%': { transform: 'scale(0.95)', opacity: '0.3' },
                             '50%': { transform: 'scale(1.2)', opacity: '0.7' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
                         }
                     }
                 }
@@ -60,12 +64,10 @@
             font-family: 'Google Sans', 'Roboto', sans-serif;
             background-color: var(--m3-surface);
             color: #1a1c1e;
-            /* Renk geçişleri daha yavaş ve yumuşak */
             transition: background-color 0.8s ease, color 0.8s ease; 
             letter-spacing: 0.015em;
         }
 
-        /* Dark Mode Override */
         html.dark body {
             background-color: #121418;
             color: #e2e2e6;
@@ -73,8 +75,8 @@
 
         .m3-card {
             background: #ffffff;
-            border-radius: 32px; /* Köşeler daha da yumuşatıldı */
-            box-shadow: 0 8px 30px rgba(0,0,0,0.04); /* Gölgeler çok daha dağıtılmış ve soft */
+            border-radius: 32px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.04);
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease, background-color 0.8s ease, border-color 0.5s ease;
         }
 
@@ -86,7 +88,7 @@
         .active-prayer {
             background-color: var(--m3-container) !important;
             border: 2px solid var(--m3-primary);
-            transform: translateY(-2px); /* Aktif kart hafifçe yukarı kalkar */
+            transform: translateY(-2px);
         }
 
         html.dark .active-prayer {
@@ -94,13 +96,30 @@
             border-color: #a8c7fa;
         }
 
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #c4c7c5; border-radius: 10px; }
 
         .time-display {
             font-variant-numeric: tabular-nums;
+        }
+
+        /* Yüklenme Efekti (Shimmer) Sınıfları Eklendi */
+        .shimmer {
+            background: #f6f7f8;
+            background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+            background-repeat: no-repeat;
+            background-size: 200% 100%;
+            animation-duration: 1.5s;
+            animation-fill-mode: forwards;
+            animation-iteration-count: infinite;
+            animation-name: shimmer;
+            animation-timing-function: linear;
+        }
+
+        html.dark .shimmer {
+            background: #25282e;
+            background-image: linear-gradient(to right, #25282e 0%, #2c3038 20%, #25282e 40%, #25282e 100%);
         }
     </style>
 </head>
@@ -109,7 +128,6 @@
     <!-- Header -->
     <header class="p-6 sm:p-8 flex justify-between items-center sticky top-0 bg-[#f7f9ff]/70 dark:bg-[#121418]/70 backdrop-blur-xl z-50 transition-colors duration-700">
         <div class="flex items-center gap-3.5">
-            <!-- Hilal Logo Kutusu -->
             <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 dark:shadow-blue-900/50 transition-transform duration-500 hover:scale-105">
                 <i data-lucide="moon" class="w-5 h-5 fill-white"></i>
             </div>
@@ -120,24 +138,27 @@
                 </p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button onclick="toggleLang()" aria-label="Dili Değiştir" class="p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105 font-bold text-sm">
+        <div class="flex gap-1 sm:gap-2">
+            <!-- Ses Aç/Kapat Butonu Eklendi -->
+            <button onclick="toggleAudio()" aria-label="Sesi Aç/Kapat" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
+                <i data-lucide="volume-x" id="audio-icon" class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400"></i>
+            </button>
+            <button onclick="toggleLang()" aria-label="Dili Değiştir" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105 font-bold text-sm">
                 <span id="lang-text">TR</span>
             </button>
-            <button onclick="toggleTheme()" aria-label="Temayı Değiştir" class="p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
-                <i data-lucide="moon" id="theme-icon" class="w-6 h-6"></i>
+            <button onclick="toggleTheme()" aria-label="Temayı Değiştir" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
+                <i data-lucide="moon" id="theme-icon" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </button>
-            <button onclick="toggleSettings()" aria-label="Ayarlar" class="p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
-                <i data-lucide="settings" class="w-6 h-6"></i>
+            <button onclick="toggleSettings()" aria-label="Ayarlar" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
+                <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </button>
         </div>
     </header>
 
-    <main class="px-5 sm:px-4 max-w-md mx-auto space-y-8"> <!-- Boşluklar artırıldı (space-y-6 -> space-y-8) -->
+    <main class="px-5 sm:px-4 max-w-md mx-auto space-y-8">
         
         <!-- Next Prayer Hero -->
         <section id="hero-section" class="m3-card py-12 px-8 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white flex flex-col items-center text-center relative overflow-hidden shadow-2xl shadow-blue-500/20 dark:shadow-none transition-all duration-700">
-            <!-- Nefes alan merkezi ışık hüzmesi efekti -->
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white/20 rounded-full blur-[60px] animate-breathe pointer-events-none"></div>
             
             <span class="text-blue-100 text-xs sm:text-sm font-medium uppercase tracking-[0.2em] mb-3 relative z-10" id="next-prayer-name">Sonraki Vakit</span>
@@ -149,7 +170,6 @@
                     <span id="next-prayer-time" class="text-lg tracking-wide">--:--</span>
                 </p>
                 
-                <!-- Inline Iftar Countdown (Only visible during Ramadan, from Imsak to Aksam) -->
                 <div id="iftar-inline-container" class="hidden flex items-center gap-2.5 mt-4 px-4 py-2 bg-white/10 dark:bg-black/20 rounded-full backdrop-blur-md border border-white/20 shadow-inner transition-all duration-500 animate-slide-up">
                     <i data-lucide="utensils" class="w-3.5 h-3.5 text-orange-300 drop-shadow-sm"></i>
                     <span id="iftar-title" class="text-[10px] sm:text-xs font-medium text-orange-50 uppercase tracking-widest opacity-90">İftara Kalan Süre</span>
@@ -165,13 +185,12 @@
 
         <!-- Daily Times Grid -->
         <section class="grid grid-cols-2 gap-4 sm:gap-5" id="daily-times-container">
-            <!-- Items will be injected here -->
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
-            <div class="m3-card p-6 flex flex-col items-center justify-center h-36 shimmer"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
+            <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
         </section>
 
         <!-- Additional Info & Date Card -->
@@ -209,8 +228,8 @@
     </main>
 
     <!-- Settings/Location Selection Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/40 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-white dark:bg-[#202429] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] p-6 animate-slide-up transition-colors duration-300 max-h-[90vh] overflow-y-auto">
+    <div id="settings-modal" class="fixed inset-0 bg-black/40 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+        <div class="bg-white dark:bg-[#202429] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] p-6 animate-slide-up transition-colors duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
             <div class="flex justify-between items-center mb-6">
                 <h2 id="settings-title" class="text-xl font-medium dark:text-white">Konum Ayarları</h2>
@@ -227,7 +246,6 @@
                             <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300" id="icon-country"></i>
                         </button>
                         
-                        <!-- Özel Açılır Menü (Arama çubuğu içinde) -->
                         <div id="dropdown-country" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
@@ -290,51 +308,54 @@
     </div>
 
     <!-- Error Toast -->
-    <div id="error-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hidden z-[110]">
+    <div id="error-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hidden z-[110] transition-opacity">
         Bir hata oluştu.
     </div>
 
     <script>
         // --- PWA (Mobil Uygulama) Yükleyicisi ---
         function setupPWA() {
-            // Tarayıcıya uygulamanın tam ekran açılması gerektiğini söyleyen Manifest bildirgesi
             const manifest = {
                 name: "Vakitler",
                 short_name: "Vakitler",
-                display: "standalone", // Adres çubuğunu gizler, uygulama gibi açar
+                display: "standalone",
                 start_url: window.location.href,
                 background_color: "#f7f9ff",
                 theme_color: "#0061a4",
                 icons: [{
-                    src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='#0061a4' rx='22'/><text x='50' y='50' font-size='55' text-anchor='middle' dominant-baseline='central' fill='white'>🌙</text></svg>`),
+                    src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='#0061a4' rx='5'/><path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='white' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>`),
                     sizes: "512x512",
                     type: "image/svg+xml",
                     purpose: "any maskable"
                 }]
             };
             
-            // Manifest'i HTML'e enjekte et
             const manifestLink = document.createElement('link');
             manifestLink.rel = 'manifest';
             manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
             document.head.appendChild(manifestLink);
             
-            // Not: İzole tarayıcı ortamlarında blob tabanlı Service Worker kaydı protokol hatalarına yol açabilir.
-            // Bu nedenle, harici dosya erişimi olmayan bu ortamda SW kaydı devre dışı bırakılmıştır.
+            // Not: İzole tarayıcı ortamlarında (iframe vb.) blob tabanlı Service Worker kaydı protokol hatalarına (URL protocol not supported) yol açar.
+            // Bu nedenle bu ortamda SW kaydı devre dışı bırakılmıştır. Gerçek bir sunucuda sw.js dosyası ile kullanılmalıdır.
         }
-        setupPWA(); // Algoritmayı Başlat
+        setupPWA();
 
         const API_BASE = "https://ezanvakti.emushaf.net";
         let prayerData = null;
         let timerInterval = null;
         let targetTimeMs = null; 
-        let lastTimeMs = null; // Progress bar için eklendi
+        let lastTimeMs = null;
         let currentLang = localStorage.getItem('appLang') || 'tr';
         
-        // İftar sayacı için değişkenler
+        // Ses durumu değişkeni
+        let isAudioEnabled = localStorage.getItem('appAudio') === 'true';
+        
         let imsakTimeMs = null;
         let aksamTimeMs = null;
         let isRamadan = false;
+        
+        // Günü takip etmek için değişken
+        let currentRenderedDate = new Date().getDate();
 
         const i18n = {
             tr: {
@@ -403,17 +424,14 @@
 
         const t = (key) => i18n[currentLang][key];
 
-        // Arama için hafıza değişkenleri
         let countriesData = [];
         let regionsData = [];
         let citiesData = [];
         
-        // Seçim tutucuları
         let selectedCountryData = null;
         let selectedRegionData = null;
         let selectedCityData = null;
 
-        // Zarif bir bildirim sesi (Zil sesi)
         const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
 
         const prayers = [
@@ -425,24 +443,21 @@
             { id: 'Yatsi', label: { tr: 'Yatsı', en: 'Isha' }, icon: 'stars' }
         ];
 
-        // Initialize Lucide icons
         lucide.createIcons();
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Tema yükleme
             initTheme();
+            updateAudioIcon();
 
-            // --- Arka Plandan Dönüş Senkronizasyonu ---
-            // Kullanıcı telefonu kilitleyip açtığında veya sekmeler arası geçiş yaptığında saati tazele
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") {
                     if (prayerData) {
-                        setupNextPrayer(); // Sayacı ve vakitleri gerçek zamanlı yeniden ayarla
+                        checkDateRollover();
+                        setupNextPrayer();
                     }
                 }
             });
 
-            // Menü (Modal) dışı tıklamalarda açık olan dropdown listeleri kapat
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('#settings-modal .relative')) {
                     ['country', 'region', 'city'].forEach(t => {
@@ -462,7 +477,6 @@
                 updateLocationUI(city.cityName);
                 fetchPrayerTimes(city.id);
                 
-                // Ayarlar menüsündeki form durumunu geri yükle
                 if (city.country && city.region && city.city) {
                     selectedCountryData = city.country;
                     selectedRegionData = city.region;
@@ -475,7 +489,6 @@
                     document.getElementById('btn-region').disabled = false;
                     document.getElementById('btn-city').disabled = false;
                     
-                    // Açılır menüler tıklandığında hazır olması için arka planda sessizce yükle
                     fetch(`${API_BASE}/sehirler/${city.country.id}`).then(r => r.json()).then(d => { regionsData = d; }).catch(e=>console.log(e));
                     fetch(`${API_BASE}/ilceler/${city.region.id}`).then(r => r.json()).then(d => { citiesData = d; }).catch(e=>console.log(e));
                 }
@@ -484,16 +497,60 @@
             }
             
             loadCountries();
-            applyLanguageTexts(); // İlk yüklemede dili uygula
+            applyLanguageTexts();
         });
+        
+        // --- Gece Yarısı Veri Yenileme Kontrolü ---
+        function checkDateRollover() {
+            const todayDate = new Date().getDate();
+            if (currentRenderedDate !== todayDate) {
+                currentRenderedDate = todayDate;
+                const savedLocation = localStorage.getItem('selectedCity');
+                if (savedLocation) {
+                    const city = JSON.parse(savedLocation);
+                    fetchPrayerTimes(city.id); // Tarih değiştiyse verileri baştan çek ve oluştur
+                }
+            }
+        }
 
-        // --- Dil Yönetimi ---
+        // --- Ses Yönetimi ---
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled;
+            localStorage.setItem('appAudio', isAudioEnabled);
+            updateAudioIcon();
+            
+            // Kullanıcı sesi ilk açtığında tarayıcı politikalarını aşmak için boş bir ses çaldırılır
+            if(isAudioEnabled) {
+                notificationSound.volume = 0;
+                notificationSound.play().then(() => {
+                    notificationSound.pause();
+                    notificationSound.currentTime = 0;
+                    notificationSound.volume = 1;
+                }).catch(e => console.log("Otomatik ses izni henüz tam alınamadı."));
+            }
+        }
+
+        function updateAudioIcon() {
+            const iconEl = document.getElementById('audio-icon');
+            if(iconEl) {
+                if(isAudioEnabled) {
+                    iconEl.setAttribute('data-lucide', 'volume-2');
+                    iconEl.classList.remove('text-slate-400');
+                    iconEl.classList.add('text-blue-500', 'dark:text-blue-400');
+                } else {
+                    iconEl.setAttribute('data-lucide', 'volume-x');
+                    iconEl.classList.add('text-slate-400');
+                    iconEl.classList.remove('text-blue-500', 'dark:text-blue-400');
+                }
+                lucide.createIcons();
+            }
+        }
+
         function toggleLang() {
             currentLang = currentLang === 'tr' ? 'en' : 'tr';
             localStorage.setItem('appLang', currentLang);
             applyLanguageTexts();
             
-            // Konum metnini mevcut dile göre (TR karakter dönüşümü) güncelle
             const savedLocation = localStorage.getItem('selectedCity');
             if (savedLocation) {
                 updateLocationUI(JSON.parse(savedLocation).cityName);
@@ -525,7 +582,6 @@
             const iftarTitle = document.getElementById('iftar-title');
             if (iftarTitle) iftarTitle.innerText = t('timeToIftar');
 
-            // Eğer daha önceden seçili bir veri yoksa placeholder metinlerini uygula
             if (!selectedCountryData) {
                 document.getElementById('text-country').innerText = document.getElementById('btn-country').disabled ? t('loading') : t('selectCountry');
             }
@@ -541,9 +597,7 @@
             }
         }
 
-        // Yardımcı fonksiyon: Custom Select Dropdown Aç/Kapat
         function toggleDropdown(type) {
-            // Diğer açık olanları kapat
             ['country', 'region', 'city'].forEach(t => {
                 if(t !== type) {
                     document.getElementById(`dropdown-${t}`).classList.add('hidden');
@@ -567,12 +621,10 @@
                 if(type === 'region') renderList('region', regionsData, 'SehirID', 'SehirAdi');
                 if(type === 'city') renderList('city', citiesData, 'IlceID', 'IlceAdi');
                 
-                // Menü açılınca otomatik arama çubuğuna odaklan
                 setTimeout(() => search.focus(), 100);
             }
         }
 
-        // Yardımcı fonksiyon: Verileri listeye basar
         function renderList(type, data, idKey, nameKey, filterQuery = "") {
             const list = document.getElementById(`list-${type}`);
             const lowerQuery = filterQuery.toLocaleLowerCase('tr-TR');
@@ -595,7 +647,6 @@
             `).join('');
         }
 
-        // Yardımcı fonksiyon: Liste elemanı seçildiğinde
         function selectItem(type, id, name) {
             document.getElementById(`text-${type}`).innerText = name;
             document.getElementById(`dropdown-${type}`).classList.add('hidden');
@@ -685,19 +736,14 @@
             const cacheKey = `prayerTimes_${cityId}`;
             const cachedData = localStorage.getItem(cacheKey);
 
-            // Bugünün tarihini API formatında (DD.MM.YYYY) alıyoruz
             const todayObj = new Date();
             const formattedToday = `${String(todayObj.getDate()).padStart(2,'0')}.${String(todayObj.getMonth()+1).padStart(2,'0')}.${todayObj.getFullYear()}`;
 
-            // 1. Önbellek (Cache) Kontrolü
             if (cachedData) {
                 const parsedData = JSON.parse(cachedData);
-                
-                // Önbellekteki verilerde bugünü bul
                 const todayIndex = parsedData.findIndex(d => d.MiladiTarihKisa === formattedToday);
                 
                 if (todayIndex !== -1) {
-                    // Geçmiş günleri atıp, bugünden itibaren olan veriyi kullan
                     prayerData = parsedData.slice(todayIndex);
                     renderToday();
                     setupNextPrayer();
@@ -705,13 +751,11 @@
                 }
             }
 
-            // 2. Önbellekte yoksa veya eskimişse API'den çek
             try {
                 const res = await fetch(`${API_BASE}/vakitler/${cityId}`);
                 const data = await res.json();
-                localStorage.setItem(cacheKey, JSON.stringify(data)); // Yeni veriyi kaydet
+                localStorage.setItem(cacheKey, JSON.stringify(data)); 
                 
-                // DÜZELTME: API'den gelen ham veri listesinde de bugünü bulup listeyi kırpmalıyız
                 const todayIndex = data.findIndex(d => d.MiladiTarihKisa === formattedToday);
                 prayerData = todayIndex !== -1 ? data.slice(todayIndex) : data;
 
@@ -726,11 +770,10 @@
         function renderToday() {
             if (!prayerData || prayerData.length === 0) return;
             
-            const today = prayerData[0]; // Assuming first index is today
+            const today = prayerData[0]; 
             const container = document.getElementById('daily-times-container');
             container.innerHTML = '';
 
-            // Miladi Tarih (Gregorian) Yerelleştirme
             const [d, m, y] = today.MiladiTarihKisa.split('.');
             const dateObj = new Date(y, parseInt(m) - 1, d);
             const gregorianStr = dateObj.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US', { 
@@ -738,7 +781,6 @@
             });
             document.getElementById('gregorian-date').innerText = gregorianStr;
 
-            // Hicri Tarih (Hijri) Yerelleştirme
             const hijriMonths = {
                 'Muharrem': 'Muharram', 'Safer': 'Safar', 'Rebiülevvel': 'Rabi al-Awwal', 'Rebiülahir': 'Rabi al-Thani', 
                 'Cemaziyelevvel': 'Jumada al-Awwal', 'Cemaziyelahir': 'Jumada al-Thani', 'Recep': 'Rajab', 
@@ -755,40 +797,26 @@
             }
             document.getElementById('hijri-date').innerText = hijriStr;
 
-            // Ayın Şekli görselini ekliyoruz
             const moonImg = document.getElementById('moon-phase');
             if (today.AyinSekliURL && today.AyinSekliURL.trim() !== '') {
-                // 1. Tarayıcı (Mixed Content) HTTP engellemesini önlemek için HTTPS'ye zorluyoruz
                 const secureUrl = today.AyinSekliURL.replace(/^http:\/\//i, 'https://');
-                
-                // Resim tamamen yüklenene kadar bekle, yüklenince görünür yap
-                moonImg.onload = () => {
-                    moonImg.classList.remove('hidden');
-                };
-                
-                // Eğer Diyanet/API sunucusunda resim yoksa kırıksa gizli tut
-                moonImg.onerror = () => {
-                    moonImg.classList.add('hidden');
-                };
-
-                // Kaynağı atayarak yüklemeyi başlat
+                moonImg.onload = () => moonImg.classList.remove('hidden');
+                moonImg.onerror = () => moonImg.classList.add('hidden');
                 moonImg.src = secureUrl;
             } else {
                 moonImg.classList.add('hidden');
             }
             
-            // Kıble Saati verisini ekliyoruz
             const qiblaEl = document.getElementById('qibla-time');
             if (qiblaEl && today.KibleSaati) {
                 qiblaEl.innerHTML = `<i data-lucide="compass" class="w-3.5 h-3.5 text-slate-400"></i> ${today.KibleSaati}`;
             }
 
-            const isFriday = dateObj.getDay() === 5; // Cuma günü kontrolü
+            const isFriday = dateObj.getDay() === 5; 
 
             prayers.forEach(prayer => {
                 const timeStr = today[prayer.id];
                 
-                // Cuma gününe denk geliyorsa "Öğle" metnini "Cuma" olarak değiştir
                 let pLabel = prayer.label[currentLang];
                 if (prayer.id === 'Ogle' && isFriday) {
                     pLabel = currentLang === 'tr' ? 'Cuma' : "Jumu'ah";
@@ -809,19 +837,16 @@
             lucide.createIcons();
         }
 
-        // CPU Optimizasyonu: Sonraki vakti sadece 1 kere veya vakit geçince hesapla
         function setupNextPrayer() {
             if (!prayerData || prayerData.length === 0) return;
 
             const now = new Date();
             const formattedToday = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
-            // Eğer gece yarısı geçildiyse ve sayfa yenilenmediyse doğru günü bul
             const actualTodayData = prayerData.find(d => d.MiladiTarihKisa === formattedToday) || prayerData[0];
             
             const today = prayerData[0];
             const tomorrow = prayerData[1];
 
-            // --- İftar Sayacı Mantığı (Ramazan Kontrolü) ---
             isRamadan = actualTodayData.HicriTarihUzun.includes('Ramazan') || actualTodayData.HicriTarihUzun.includes('Ramadan');
             
             const [ih, im] = actualTodayData.Imsak.split(':');
@@ -833,13 +858,12 @@
             const aDate = new Date();
             aDate.setHours(parseInt(ah), parseInt(am), 0, 0);
             aksamTimeMs = aDate.getTime();
-            // ---------------------------------------------
             
             let nextDateObj = null;
             let lastDateObj = null;
             let nextName = "";
             let nextIndex = -1;
-            let currentPrayerId = 'Yatsi'; // Gece yarısından sonra, imsaktan önceki varsayılan mevcut vakit
+            let currentPrayerId = 'Yatsi'; 
 
             for (let i = 0; i < prayers.length; i++) {
                 const p = prayers[i];
@@ -850,7 +874,6 @@
                 if (pTime > now) {
                     nextDateObj = pTime;
                     
-                    // Sonraki vakit isminde Cuma kontrolü
                     let pLabel = p.label[currentLang];
                     if (p.id === 'Ogle' && pTime.getDay() === 5) {
                         pLabel = currentLang === 'tr' ? 'Cuma' : "Jumu'ah";
@@ -860,45 +883,39 @@
                     nextIndex = i;
                     
                     if (i > 0) {
-                        currentPrayerId = prayers[i - 1].id; // İçinde bulunduğumuz vakti al
+                        currentPrayerId = prayers[i - 1].id; 
                     }
                     break;
                 }
             }
 
-            // Eğer bugün tüm vakitler geçtiyse, yarının imsak vaktini al
             if (!nextDateObj && tomorrow) {
                 const [h, m] = tomorrow.Imsak.split(':');
                 nextDateObj = new Date();
                 nextDateObj.setDate(nextDateObj.getDate() + 1);
                 nextDateObj.setHours(parseInt(h), parseInt(m), 0, 0);
                 nextName = prayers[0].label[currentLang] + ` (${t('tomorrow')})`;
-                currentPrayerId = 'Yatsi'; // Gece yarısından önce, yatsıdan sonra mevcut vakit
+                currentPrayerId = 'Yatsi'; 
                 
-                // Önceki vakit bugünün yatsısı
                 const [lh, lm] = today.Yatsi.split(':');
                 lastDateObj = new Date();
                 lastDateObj.setHours(parseInt(lh), parseInt(lm), 0, 0);
             } else if (nextIndex > 0) {
-                // Önceki vakit bugünün bir önceki vakti
                 const lastP = prayers[nextIndex - 1];
                 const [lh, lm] = today[lastP.id].split(':');
                 lastDateObj = new Date();
                 lastDateObj.setHours(parseInt(lh), parseInt(lm), 0, 0);
             } else if (nextIndex === 0) {
-                // Sonraki vakit bugünün imsakı, o halde önceki dünün yatsısıdır
                 lastDateObj = new Date();
                 lastDateObj.setHours(0, 0, 0, 0);
             }
 
-            // Artık SONRAKİ değil, İÇİNDE BULUNDUĞUMUZ (Mevcut) vakti vurgula
             highlightCard(currentPrayerId);
 
             if (nextDateObj) {
                 targetTimeMs = nextDateObj.getTime();
                 lastTimeMs = lastDateObj ? lastDateObj.getTime() : Date.now();
                 
-                // Başlığı "X Vaktine Kalan" formatında dinamik olarak güncelle
                 const titleFormat = t('timeUntil');
                 const finalTitleText = titleFormat.replace('{prayer}', nextName);
                 document.getElementById('next-prayer-name').innerText = finalTitleText.toLocaleUpperCase(currentLang === 'tr' ? 'tr-TR' : 'en-US');
@@ -913,26 +930,27 @@
             if (timerInterval) clearInterval(timerInterval);
             
             timerInterval = setInterval(() => {
+                checkDateRollover(); // Her saniye gün dönümünü kontrol et
+
                 if (!targetTimeMs) return;
 
                 const nowMs = Date.now();
                 const diff = targetTimeMs - nowMs;
 
-                // Eğer geri sayım bittiyse (vakit girdiyse)
                 if (diff <= 0) {
                     clearInterval(timerInterval);
                     document.getElementById('countdown-timer').innerText = "00:00:00";
                     document.getElementById('prayer-progress').style.width = '100%';
                     
-                    // Sesli Bildirim Çal
-                    notificationSound.play().catch(e => console.log("Otomatik ses oynatma engellendi."));
+                    // Ses çalma kontrolü eklendi
+                    if(isAudioEnabled) {
+                        notificationSound.play().catch(e => console.log("Ses oynatılamadı:", e));
+                    }
                     
-                    // Yeni vakti bulmak için tekrar çalıştır
                     setTimeout(setupNextPrayer, 2000); 
                     return;
                 }
 
-                // Saat, Dakika, Saniye Hesaplama
                 const hours = Math.floor(diff / 3600000);
                 const mins = Math.floor((diff % 3600000) / 60000);
                 const secs = Math.floor((diff % 60000) / 1000);
@@ -940,7 +958,6 @@
                 document.getElementById('countdown-timer').innerText = 
                     `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
-                // Progress Bar Hesaplama
                 if (lastTimeMs && targetTimeMs > lastTimeMs) {
                     const totalDuration = targetTimeMs - lastTimeMs;
                     const elapsed = nowMs - lastTimeMs;
@@ -950,12 +967,11 @@
                     document.getElementById('prayer-progress').style.width = `${percentage}%`;
                 }
 
-                // --- İftar Sayacı Güncellemesi (Inline) ---
                 const iftarContainer = document.getElementById('iftar-inline-container');
                 if (isRamadan && nowMs >= imsakTimeMs && nowMs < aksamTimeMs) {
                     if (iftarContainer.classList.contains('hidden')) {
                         iftarContainer.classList.remove('hidden');
-                        lucide.createIcons(); // Yeni ikon görünür olduğunda render et
+                        lucide.createIcons(); 
                     }
                     
                     const iftarDiff = aksamTimeMs - nowMs;
@@ -974,7 +990,6 @@
             }, 1000);
         }
 
-        // --- Tema Yönetimi (Karanlık Mod) ---
         function initTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
