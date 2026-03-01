@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Vakitler">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' fill='%230061a4' rx='5'/%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='white' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%230061a4'/%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' transform='translate(112, 112) scale(12)' fill='white'/%3E%3C/svg%3E">
     
     <!-- Tarayıcı Sekmesi İkonu (Favicon - Hilal) -->
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='%230061a4' stroke='%230061a4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -60,6 +60,12 @@
             --m3-container: #d1e4ff;
         }
 
+        /* YATAY KAYDIRMAYI ENGELLEYEN ANA KURALLAR */
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
         body {
             font-family: 'Google Sans', 'Roboto', sans-serif;
             background-color: var(--m3-surface);
@@ -104,7 +110,7 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Yüklenme Efekti (Shimmer) Sınıfları Eklendi */
+        /* Yüklenme Efekti (Shimmer) Sınıfları */
         .shimmer {
             background: #f6f7f8;
             background-image: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
@@ -123,57 +129,57 @@
         }
     </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-20 w-full antialiased">
 
     <!-- Header -->
-    <header class="p-6 sm:p-8 flex justify-between items-center sticky top-0 bg-[#f7f9ff]/70 dark:bg-[#121418]/70 backdrop-blur-xl z-50 transition-colors duration-700">
-        <div class="flex items-center gap-3.5">
-            <div class="w-11 h-11 rounded-[14px] bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 dark:shadow-blue-900/50 transition-transform duration-500 hover:scale-105">
-                <i data-lucide="moon" class="w-5 h-5 fill-white"></i>
+    <header class="w-full px-4 py-4 sm:p-8 flex justify-between items-center sticky top-0 bg-[#f7f9ff]/70 dark:bg-[#121418]/70 backdrop-blur-xl z-50 transition-colors duration-700">
+        <div class="flex items-center gap-2.5 sm:gap-3.5 min-w-0 w-auto">
+            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-[12px] sm:rounded-[14px] flex-shrink-0 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-600 dark:to-blue-800 flex items-center justify-center text-white shadow-lg shadow-blue-500/30 dark:shadow-blue-900/50 transition-transform duration-500 hover:scale-105">
+                <i data-lucide="moon" class="w-4 h-4 sm:w-5 sm:h-5 fill-white"></i>
             </div>
-            <div>
-                <h1 id="app-title" class="text-2xl font-medium text-slate-800 dark:text-white tracking-tight leading-none">Vakitler</h1>
-                <p id="current-location-text" class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-1.5">
-                    <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="loc-not-selected">Konum Seçilmedi</span>
+            <!-- min-w-0 ve truncate metin taşmalarını önler -->
+            <div class="min-w-0">
+                <h1 id="app-title" class="text-xl sm:text-2xl font-medium text-slate-800 dark:text-white tracking-tight leading-none truncate">Vakitler</h1>
+                <p id="current-location-text" class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-1.5">
+                    <i data-lucide="map-pin" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i> 
+                    <span id="loc-not-selected" class="truncate">Konum Seçilmedi</span>
                 </p>
             </div>
         </div>
-        <div class="flex gap-1 sm:gap-2">
-            <!-- Ses Aç/Kapat Butonu Eklendi -->
-            <button onclick="toggleAudio()" aria-label="Sesi Aç/Kapat" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
-                <i data-lucide="volume-x" id="audio-icon" class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400"></i>
-            </button>
-            <button onclick="toggleLang()" aria-label="Dili Değiştir" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105 font-bold text-sm">
+        <div class="flex gap-0.5 sm:gap-2 flex-shrink-0">
+            <!-- Butonların mobildeki padding değerleri (p-3 -> p-2) küçültüldü -->
+            <button onclick="toggleLang()" aria-label="Dili Değiştir" class="p-2 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105 font-bold text-sm">
                 <span id="lang-text">TR</span>
             </button>
-            <button onclick="toggleTheme()" aria-label="Temayı Değiştir" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
+            <button onclick="toggleTheme()" aria-label="Temayı Değiştir" class="p-2 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
                 <i data-lucide="moon" id="theme-icon" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </button>
-            <button onclick="toggleSettings()" aria-label="Ayarlar" class="p-3 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
+            <button onclick="toggleSettings()" aria-label="Ayarlar" class="p-2 sm:p-3.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all duration-300 hover:scale-105">
                 <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </button>
         </div>
     </header>
 
-    <main class="px-5 sm:px-4 max-w-md mx-auto space-y-8">
+    <main class="w-full px-4 sm:px-4 max-w-md mx-auto space-y-6 sm:space-y-8">
         
         <!-- Next Prayer Hero -->
-        <section id="hero-section" class="m3-card py-12 px-8 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white flex flex-col items-center text-center relative overflow-hidden shadow-2xl shadow-blue-500/20 dark:shadow-none transition-all duration-700">
+        <section id="hero-section" class="m3-card py-10 px-5 sm:py-12 sm:px-8 bg-gradient-to-br from-blue-500 to-blue-700 dark:from-blue-800 dark:to-blue-900 text-white flex flex-col items-center text-center relative overflow-hidden shadow-2xl shadow-blue-500/20 dark:shadow-none transition-all duration-700 w-full">
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white/20 rounded-full blur-[60px] animate-breathe pointer-events-none"></div>
             
             <span class="text-blue-100 text-xs sm:text-sm font-medium uppercase tracking-[0.2em] mb-3 relative z-10" id="next-prayer-name">Sonraki Vakit</span>
-            <div class="text-6xl sm:text-7xl font-bold mb-6 time-display drop-shadow-lg relative z-10 tracking-tight" id="countdown-timer">00:00:00</div>
+            <!-- Sayaç fontu taşmaması için mobilde biraz daha ufaltıldı (text-5xl) -->
+            <div class="text-5xl min-[375px]:text-6xl sm:text-7xl font-bold mb-5 sm:mb-6 time-display drop-shadow-lg relative z-10 tracking-tight" id="countdown-timer">00:00:00</div>
             
-            <div class="flex flex-col items-center mb-10 relative z-10 min-h-[40px]">
-                <p class="text-blue-100 flex items-center gap-2.5 opacity-90 transition-all">
-                    <i data-lucide="clock" class="w-4.5 h-4.5"></i>
-                    <span id="next-prayer-time" class="text-lg tracking-wide">--:--</span>
+            <div class="flex flex-col items-center mb-8 sm:mb-10 relative z-10 min-h-[40px] w-full">
+                <p class="text-blue-100 flex items-center gap-2 sm:gap-2.5 opacity-90 transition-all">
+                    <i data-lucide="clock" class="w-4 h-4 sm:w-4.5 sm:h-4.5"></i>
+                    <span id="next-prayer-time" class="text-base sm:text-lg tracking-wide">--:--</span>
                 </p>
                 
-                <div id="iftar-inline-container" class="hidden flex items-center gap-2.5 mt-4 px-4 py-2 bg-white/10 dark:bg-black/20 rounded-full backdrop-blur-md border border-white/20 shadow-inner transition-all duration-500 animate-slide-up">
-                    <i data-lucide="utensils" class="w-3.5 h-3.5 text-orange-300 drop-shadow-sm"></i>
-                    <span id="iftar-title" class="text-[10px] sm:text-xs font-medium text-orange-50 uppercase tracking-widest opacity-90">İftara Kalan Süre</span>
-                    <span id="iftar-inline-timer" class="text-xs sm:text-sm font-bold text-white tabular-nums tracking-widest drop-shadow-md border-l border-white/20 pl-2.5">00:00:00</span>
+                <div id="iftar-inline-container" class="hidden flex items-center justify-center gap-2 sm:gap-2.5 mt-4 px-3 py-2 sm:px-4 sm:py-2 bg-white/10 dark:bg-black/20 rounded-full backdrop-blur-md border border-white/20 shadow-inner transition-all duration-500 animate-slide-up w-auto max-w-full">
+                    <i data-lucide="utensils" class="w-3.5 h-3.5 text-orange-300 drop-shadow-sm flex-shrink-0"></i>
+                    <span id="iftar-title" class="text-[10px] sm:text-xs font-medium text-orange-50 uppercase tracking-widest opacity-90 truncate">İftara Kalan Süre</span>
+                    <span id="iftar-inline-timer" class="text-xs sm:text-sm font-bold text-white tabular-nums tracking-widest drop-shadow-md border-l border-white/20 pl-2 sm:pl-2.5">00:00:00</span>
                 </div>
             </div>
             
@@ -184,7 +190,7 @@
         </section>
 
         <!-- Daily Times Grid -->
-        <section class="grid grid-cols-2 gap-4 sm:gap-5" id="daily-times-container">
+        <section class="grid grid-cols-2 gap-3 sm:gap-5 w-full" id="daily-times-container">
             <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
             <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
             <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
@@ -194,63 +200,63 @@
         </section>
 
         <!-- Additional Info & Date Card -->
-        <div class="m3-card p-6 flex items-center justify-between mb-8">
-            <div class="text-left flex-1">
-                <p id="gregorian-date" class="text-slate-800 dark:text-slate-200 font-medium text-sm">--</p>
-                <p id="hijri-date" class="text-slate-500 dark:text-slate-400 text-xs mt-1.5 tracking-wide">--</p>
+        <div class="m3-card p-5 sm:p-6 flex items-center justify-between mb-6 sm:mb-8 w-full">
+            <div class="text-left flex-1 min-w-0 pr-2">
+                <p id="gregorian-date" class="text-slate-800 dark:text-slate-200 font-medium text-xs sm:text-sm truncate">--</p>
+                <p id="hijri-date" class="text-slate-500 dark:text-slate-400 text-[10px] sm:text-xs mt-1 sm:mt-1.5 tracking-wide truncate">--</p>
             </div>
-            <div class="flex items-center gap-5 text-right border-l border-slate-100 dark:border-slate-800 pl-5">
+            <div class="flex items-center gap-3 sm:gap-5 text-right border-l border-slate-100 dark:border-slate-800 pl-3 sm:pl-5 flex-shrink-0">
                 <div>
-                    <p id="qibla-label" class="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Kıble Saati</p>
-                    <p id="qibla-time" class="font-bold text-slate-700 dark:text-slate-300 time-display flex items-center justify-end gap-1.5"><i data-lucide="compass" class="w-3.5 h-3.5 text-slate-400"></i> --:--</p>
+                    <p id="qibla-label" class="text-[9px] sm:text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Kıble Saati</p>
+                    <p id="qibla-time" class="font-bold text-slate-700 dark:text-slate-300 time-display flex items-center justify-end gap-1 sm:gap-1.5 text-xs sm:text-base"><i data-lucide="compass" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400"></i> --:--</p>
                 </div>
-                <div class="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-700 shadow-inner">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-700 shadow-inner flex-shrink-0">
                     <img id="moon-phase" src="" alt="Ay" class="w-full h-full object-cover hidden transition-opacity duration-1000">
                 </div>
             </div>
         </div>
 
         <!-- Support / Buy Me A Coffee Card -->
-        <a href="https://buymeacoffee.com/erdogandemirtas" target="_blank" class="m3-card p-5 flex items-center justify-between mb-8 group hover:-translate-y-1 transition-all duration-500 relative overflow-hidden">
+        <a href="https://buymeacoffee.com/erdogandemirtas" target="_blank" class="m3-card p-4 sm:p-5 flex items-center justify-between mb-8 group hover:-translate-y-1 transition-all duration-500 relative overflow-hidden w-full">
             <div class="absolute inset-0 bg-gradient-to-r from-[#FFDD00]/20 to-transparent dark:from-[#FFDD00]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-10 h-10 rounded-full bg-[#FFDD00]/20 dark:bg-[#FFDD00]/10 flex items-center justify-center text-[#d4b800] dark:text-[#FFDD00] transition-transform duration-500 group-hover:scale-110">
+            <div class="flex items-center gap-3 sm:gap-4 relative z-10 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-[#FFDD00]/20 dark:bg-[#FFDD00]/10 flex items-center justify-center text-[#d4b800] dark:text-[#FFDD00] transition-transform duration-500 group-hover:scale-110 flex-shrink-0">
                     <i data-lucide="coffee" class="w-5 h-5"></i>
                 </div>
-                <div>
-                    <p id="buy-coffee-title" class="text-sm font-bold text-slate-800 dark:text-slate-200">Destek Ol</p>
-                    <p id="buy-coffee-desc" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Bana bir kahve ısmarla</p>
+                <div class="min-w-0">
+                    <p id="buy-coffee-title" class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">Destek Ol</p>
+                    <p id="buy-coffee-desc" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">Bana bir kahve ısmarla</p>
                 </div>
             </div>
-            <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:text-[#d4b800] dark:group-hover:text-[#FFDD00] transition-colors relative z-10"></i>
+            <i data-lucide="external-link" class="w-4 h-4 text-slate-400 group-hover:text-[#d4b800] dark:group-hover:text-[#FFDD00] transition-colors relative z-10 flex-shrink-0"></i>
         </a>
 
     </main>
 
     <!-- Settings/Location Selection Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-black/40 z-[100] hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
-        <div class="bg-white dark:bg-[#202429] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] p-6 animate-slide-up transition-colors duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6 sm:hidden"></div>
-            <div class="flex justify-between items-center mb-6">
-                <h2 id="settings-title" class="text-xl font-medium dark:text-white">Konum Ayarları</h2>
-                <button onclick="toggleSettings()" aria-label="Kapat" class="text-slate-400 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="x"></i></button>
+        <div class="bg-white dark:bg-[#202429] w-full max-w-md rounded-t-[32px] sm:rounded-[32px] p-5 sm:p-6 animate-slide-up transition-colors duration-300 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-5 sm:hidden"></div>
+            <div class="flex justify-between items-center mb-5 sm:mb-6">
+                <h2 id="settings-title" class="text-lg sm:text-xl font-medium dark:text-white truncate pr-4">Konum Ayarları</h2>
+                <button onclick="toggleSettings()" aria-label="Kapat" class="text-slate-400 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <div class="space-y-5">
+            <div class="space-y-4 sm:space-y-5 w-full">
                 <!-- Ülke -->
-                <div class="space-y-2 relative z-30">
+                <div class="space-y-1.5 sm:space-y-2 relative z-30">
                     <label id="label-country" class="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-2 uppercase tracking-widest">Ülke</label>
                     <div class="relative">
-                        <button type="button" id="btn-country" onclick="toggleDropdown('country')" disabled class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span id="text-country" class="text-slate-700 dark:text-slate-200 text-sm font-medium">Yükleniyor...</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300" id="icon-country"></i>
+                        <button type="button" id="btn-country" onclick="toggleDropdown('country')" disabled class="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="text-country" class="text-slate-700 dark:text-slate-200 text-sm font-medium truncate pr-2">Yükleniyor...</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0" id="icon-country"></i>
                         </button>
                         
-                        <div id="dropdown-country" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
+                        <div id="dropdown-country" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-country" placeholder="Ülke ara..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('country', countriesData, 'UlkeID', 'UlkeAdi', this.value)">
+                                    <input type="text" id="search-country" placeholder="Ülke ara..." class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('country', countriesData, 'UlkeID', 'UlkeAdi', this.value)">
                                 </div>
                             </div>
                             <ul id="list-country" class="max-h-48 overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
@@ -259,19 +265,19 @@
                 </div>
 
                 <!-- Şehir -->
-                <div class="space-y-2 relative z-20">
+                <div class="space-y-1.5 sm:space-y-2 relative z-20">
                     <label id="label-region" class="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-2 uppercase tracking-widest">Şehir</label>
                     <div class="relative">
-                        <button type="button" id="btn-region" onclick="toggleDropdown('region')" disabled class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span id="text-region" class="text-slate-700 dark:text-slate-200 text-sm font-medium">Önce Ülke Seçin</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300" id="icon-region"></i>
+                        <button type="button" id="btn-region" onclick="toggleDropdown('region')" disabled class="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="text-region" class="text-slate-700 dark:text-slate-200 text-sm font-medium truncate pr-2">Önce Ülke Seçin</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0" id="icon-region"></i>
                         </button>
                         
-                        <div id="dropdown-region" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
+                        <div id="dropdown-region" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-region" placeholder="Şehir ara..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('region', regionsData, 'SehirID', 'SehirAdi', this.value)">
+                                    <input type="text" id="search-region" placeholder="Şehir ara..." class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('region', regionsData, 'SehirID', 'SehirAdi', this.value)">
                                 </div>
                             </div>
                             <ul id="list-region" class="max-h-48 overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
@@ -280,19 +286,19 @@
                 </div>
 
                 <!-- İlçe -->
-                <div class="space-y-2 relative z-10">
+                <div class="space-y-1.5 sm:space-y-2 relative z-10">
                     <label id="label-city" class="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-2 uppercase tracking-widest">İlçe</label>
                     <div class="relative">
-                        <button type="button" id="btn-city" onclick="toggleDropdown('city')" disabled class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
-                            <span id="text-city" class="text-slate-700 dark:text-slate-200 text-sm font-medium">Önce Şehir Seçin</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300" id="icon-city"></i>
+                        <button type="button" id="btn-city" onclick="toggleDropdown('city')" disabled class="w-full px-4 sm:px-5 py-3.5 sm:py-4 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-between text-left transition-all hover:bg-slate-100 dark:hover:bg-slate-800/60 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="text-city" class="text-slate-700 dark:text-slate-200 text-sm font-medium truncate pr-2">Önce Şehir Seçin</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0" id="icon-city"></i>
                         </button>
                         
-                        <div id="dropdown-city" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
+                        <div id="dropdown-city" class="hidden absolute left-0 top-full mt-2 w-full bg-white dark:bg-[#202429] rounded-2xl sm:rounded-3xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-700 overflow-hidden flex flex-col transition-all">
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-city" placeholder="İlçe ara..." class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('city', citiesData, 'IlceID', 'IlceAdi', this.value)">
+                                    <input type="text" id="search-city" placeholder="İlçe ara..." class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-100 dark:border-slate-800 outline-none text-sm dark:text-white placeholder:text-slate-400 focus:border-blue-500/50 dark:focus:border-blue-500/50 transition-colors" oninput="renderList('city', citiesData, 'IlceID', 'IlceAdi', this.value)">
                                 </div>
                             </div>
                             <ul id="list-city" class="max-h-48 overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
@@ -300,7 +306,7 @@
                     </div>
                 </div>
                 
-                <button id="btn-save-location" onclick="saveLocation()" class="w-full py-4 bg-blue-600 dark:bg-blue-700 text-white rounded-3xl font-medium mt-6 shadow-lg shadow-blue-500/30 dark:shadow-none transition-all hover:bg-blue-700 dark:hover:bg-blue-600 hover:-translate-y-1">
+                <button id="btn-save-location" onclick="saveLocation()" class="w-full py-3.5 sm:py-4 bg-blue-600 dark:bg-blue-700 text-white rounded-2xl sm:rounded-3xl font-medium mt-5 sm:mt-6 shadow-lg shadow-blue-500/30 dark:shadow-none transition-all hover:bg-blue-700 dark:hover:bg-blue-600 hover:-translate-y-1">
                     Konumu Kaydet
                 </button>
             </div>
@@ -308,7 +314,7 @@
     </div>
 
     <!-- Error Toast -->
-    <div id="error-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hidden z-[110] transition-opacity">
+    <div id="error-toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-lg hidden z-[110] transition-opacity w-[90%] sm:w-auto max-w-sm text-center">
         Bir hata oluştu.
     </div>
 
@@ -321,22 +327,19 @@
                 display: "standalone",
                 start_url: window.location.href,
                 background_color: "#f7f9ff",
-                theme_color: "#0061a4",
-                icons: [{
-                    src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='#0061a4' rx='5'/><path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' fill='white' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>`),
-                    sizes: "512x512",
-                    type: "image/svg+xml",
-                    purpose: "any maskable"
-                }]
-            };
-            
-            const manifestLink = document.createElement('link');
+            theme_color: "#0061a4",
+            icons: [{
+                src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='#0061a4'/><path d='M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z' transform='translate(112, 112) scale(12)' fill='white'/></svg>`),
+                sizes: "512x512",
+                type: "image/svg+xml",
+                purpose: "any maskable"
+            }]
+        };
+        
+        const manifestLink = document.createElement('link');
             manifestLink.rel = 'manifest';
             manifestLink.href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
             document.head.appendChild(manifestLink);
-            
-            // Not: İzole tarayıcı ortamlarında (iframe vb.) blob tabanlı Service Worker kaydı protokol hatalarına (URL protocol not supported) yol açar.
-            // Bu nedenle bu ortamda SW kaydı devre dışı bırakılmıştır. Gerçek bir sunucuda sw.js dosyası ile kullanılmalıdır.
         }
         setupPWA();
 
@@ -347,14 +350,9 @@
         let lastTimeMs = null;
         let currentLang = localStorage.getItem('appLang') || 'tr';
         
-        // Ses durumu değişkeni
-        let isAudioEnabled = localStorage.getItem('appAudio') === 'true';
-        
         let imsakTimeMs = null;
         let aksamTimeMs = null;
         let isRamadan = false;
-        
-        // Günü takip etmek için değişken
         let currentRenderedDate = new Date().getDate();
 
         const i18n = {
@@ -411,7 +409,7 @@
                 saveLocation: 'Save Location',
                 noResults: 'No results found',
                 errSelectDistrict: 'Please select a district',
-                errFetchTimes: 'Could not fetch times, check your internet connection.',
+                errFetchTimes: 'Could not fetch times, check your connection.',
                 errLoadCountries: 'Could not load countries',
                 errLoadRegions: 'Could not load cities',
                 errLoadCities: 'Could not load districts',
@@ -432,8 +430,6 @@
         let selectedRegionData = null;
         let selectedCityData = null;
 
-        const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
-
         const prayers = [
             { id: 'Imsak', label: { tr: 'İmsak', en: 'Fajr' }, icon: 'sunrise' },
             { id: 'Gunes', label: { tr: 'Güneş', en: 'Sunrise' }, icon: 'sun' },
@@ -447,7 +443,6 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
-            updateAudioIcon();
 
             document.addEventListener("visibilitychange", () => {
                 if (document.visibilityState === "visible") {
@@ -500,7 +495,6 @@
             applyLanguageTexts();
         });
         
-        // --- Gece Yarısı Veri Yenileme Kontrolü ---
         function checkDateRollover() {
             const todayDate = new Date().getDate();
             if (currentRenderedDate !== todayDate) {
@@ -508,41 +502,8 @@
                 const savedLocation = localStorage.getItem('selectedCity');
                 if (savedLocation) {
                     const city = JSON.parse(savedLocation);
-                    fetchPrayerTimes(city.id); // Tarih değiştiyse verileri baştan çek ve oluştur
+                    fetchPrayerTimes(city.id); 
                 }
-            }
-        }
-
-        // --- Ses Yönetimi ---
-        function toggleAudio() {
-            isAudioEnabled = !isAudioEnabled;
-            localStorage.setItem('appAudio', isAudioEnabled);
-            updateAudioIcon();
-            
-            // Kullanıcı sesi ilk açtığında tarayıcı politikalarını aşmak için boş bir ses çaldırılır
-            if(isAudioEnabled) {
-                notificationSound.volume = 0;
-                notificationSound.play().then(() => {
-                    notificationSound.pause();
-                    notificationSound.currentTime = 0;
-                    notificationSound.volume = 1;
-                }).catch(e => console.log("Otomatik ses izni henüz tam alınamadı."));
-            }
-        }
-
-        function updateAudioIcon() {
-            const iconEl = document.getElementById('audio-icon');
-            if(iconEl) {
-                if(isAudioEnabled) {
-                    iconEl.setAttribute('data-lucide', 'volume-2');
-                    iconEl.classList.remove('text-slate-400');
-                    iconEl.classList.add('text-blue-500', 'dark:text-blue-400');
-                } else {
-                    iconEl.setAttribute('data-lucide', 'volume-x');
-                    iconEl.classList.add('text-slate-400');
-                    iconEl.classList.remove('text-blue-500', 'dark:text-blue-400');
-                }
-                lucide.createIcons();
             }
         }
 
@@ -640,7 +601,7 @@
 
             list.innerHTML = filtered.map(item => `
                 <li>
-                    <button type="button" onclick="selectItem('${type}', '${item[idKey]}', '${item[nameKey].replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <button type="button" onclick="selectItem('${type}', '${item[idKey]}', '${item[nameKey].replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 rounded-2xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors truncate">
                         ${item[nameKey]}
                     </button>
                 </li>
@@ -809,7 +770,7 @@
             
             const qiblaEl = document.getElementById('qibla-time');
             if (qiblaEl && today.KibleSaati) {
-                qiblaEl.innerHTML = `<i data-lucide="compass" class="w-3.5 h-3.5 text-slate-400"></i> ${today.KibleSaati}`;
+                qiblaEl.innerHTML = `<i data-lucide="compass" class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400"></i> ${today.KibleSaati}`;
             }
 
             const isFriday = dateObj.getDay() === 5; 
@@ -823,14 +784,14 @@
                 }
 
                 const card = document.createElement('div');
-                card.className = `m3-card p-5 sm:p-6 flex flex-col items-center justify-center gap-3 border-2 border-transparent transition-all duration-500 hover:-translate-y-1 cursor-default`;
+                card.className = `m3-card p-4 sm:p-6 flex flex-col items-center justify-center gap-2 sm:gap-3 border-2 border-transparent transition-all duration-500 hover:-translate-y-1 cursor-default w-full`;
                 card.id = `card-${prayer.id}`;
                 card.innerHTML = `
-                    <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-colors">
-                        <i data-lucide="${prayer.icon}" class="w-6 h-6 opacity-80"></i>
+                    <div class="p-2 sm:p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 transition-colors">
+                        <i data-lucide="${prayer.icon}" class="w-5 h-5 sm:w-6 sm:h-6 opacity-80"></i>
                     </div>
-                    <span class="text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest">${pLabel}</span>
-                    <span class="text-2xl font-bold text-slate-800 dark:text-slate-100 time-display tracking-tight">${timeStr}</span>
+                    <span class="text-[10px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center truncate w-full">${pLabel}</span>
+                    <span class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 time-display tracking-tight">${timeStr}</span>
                 `;
                 container.appendChild(card);
             });
@@ -930,7 +891,7 @@
             if (timerInterval) clearInterval(timerInterval);
             
             timerInterval = setInterval(() => {
-                checkDateRollover(); // Her saniye gün dönümünü kontrol et
+                checkDateRollover();
 
                 if (!targetTimeMs) return;
 
@@ -941,11 +902,6 @@
                     clearInterval(timerInterval);
                     document.getElementById('countdown-timer').innerText = "00:00:00";
                     document.getElementById('prayer-progress').style.width = '100%';
-                    
-                    // Ses çalma kontrolü eklendi
-                    if(isAudioEnabled) {
-                        notificationSound.play().catch(e => console.log("Ses oynatılamadı:", e));
-                    }
                     
                     setTimeout(setupNextPrayer, 2000); 
                     return;
@@ -1038,7 +994,7 @@
                 displayName = name.replace(/[ığüşöçİĞÜŞÖÇ]/g, match => trMap[match]);
             }
             document.getElementById('current-location-text').innerHTML = 
-                `<i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span>${displayName}</span>`;
+                `<i data-lucide="map-pin" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i> <span class="truncate">${displayName}</span>`;
             lucide.createIcons();
         }
 
