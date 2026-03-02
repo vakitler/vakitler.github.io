@@ -47,6 +47,26 @@ function registerServiceWorker() {
                 return;
             }
 
+            const isLocalhost =
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname === '[::1]';
+
+            if (isLocalhost) {
+                navigator.serviceWorker.getRegistrations().then((registrations) => {
+                    registrations.forEach((registration) => registration.unregister());
+                }).catch((err) => {
+                    console.warn('Service worker kayıt temizleme hatası:', err);
+                });
+
+                if ('caches' in window) {
+                    caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key)))).catch((err) => {
+                        console.warn('Cache temizleme hatası:', err);
+                    });
+                }
+                return;
+            }
+
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js').catch((err) => {
                     console.error('Service worker kayıt hatası:', err);
@@ -442,6 +462,22 @@ function registerServiceWorker() {
                     </button>
                 </li>
             `).join('');
+        }
+
+        function filterDropdown(type, query) {
+            if (type === 'country') {
+                renderList('country', countriesData, 'UlkeID', 'UlkeAdi', query);
+                return;
+            }
+
+            if (type === 'region') {
+                renderList('region', regionsData, 'SehirID', 'SehirAdi', query);
+                return;
+            }
+
+            if (type === 'city') {
+                renderList('city', citiesData, 'IlceID', 'IlceAdi', query);
+            }
         }
 
         function selectItem(type, id, name) {
@@ -963,5 +999,6 @@ window.toggleTheme = toggleTheme;
 window.toggleSettings = toggleSettings;
 window.toggleDropdown = toggleDropdown;
 window.renderList = renderList;
+window.filterDropdown = filterDropdown;
 window.selectItem = selectItem;
 window.saveLocation = saveLocation;

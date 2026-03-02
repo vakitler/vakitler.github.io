@@ -68,7 +68,7 @@
     <main class="w-full px-4 sm:px-4 max-w-md mx-auto space-y-6 sm:space-y-8">
         
         <!-- Next Prayer Hero -->
-        <section id="hero-section" class="hero-card m3-card py-10 px-5 sm:py-12 sm:px-8 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 dark:from-blue-800 dark:via-blue-900 dark:to-blue-950 text-white flex flex-col items-center text-center relative overflow-hidden dark:shadow-none transition-all duration-700 w-full">
+        <section id="hero-section" class="hero-card m3-card py-10 px-5 sm:py-12 sm:px-8 text-white flex flex-col items-center text-center relative overflow-hidden dark:shadow-none transition-all duration-700 w-full">
             <div class="hero-orb absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-white/20 rounded-full animate-breathe pointer-events-none"></div>
             
             <span class="hero-kicker text-blue-100 text-xs sm:text-sm font-medium uppercase mb-3 relative z-10" id="next-prayer-name">Sonraki Vakit</span>
@@ -161,7 +161,7 @@
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-country" placeholder="Ülke ara..." class="dropdown-search-input" oninput="renderList('country', countriesData, 'UlkeID', 'UlkeAdi', this.value)">
+                                    <input type="text" id="search-country" placeholder="Ülke ara..." class="dropdown-search-input" oninput="filterDropdown('country', this.value)">
                                 </div>
                             </div>
                             <ul id="list-country" class="dropdown-list overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
@@ -182,7 +182,7 @@
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-region" placeholder="Şehir ara..." class="dropdown-search-input" oninput="renderList('region', regionsData, 'SehirID', 'SehirAdi', this.value)">
+                                    <input type="text" id="search-region" placeholder="Şehir ara..." class="dropdown-search-input" oninput="filterDropdown('region', this.value)">
                                 </div>
                             </div>
                             <ul id="list-region" class="dropdown-list overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
@@ -203,7 +203,7 @@
                             <div class="p-3 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                                 <div class="relative">
                                     <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
-                                    <input type="text" id="search-city" placeholder="İlçe ara..." class="dropdown-search-input" oninput="renderList('city', citiesData, 'IlceID', 'IlceAdi', this.value)">
+                                    <input type="text" id="search-city" placeholder="İlçe ara..." class="dropdown-search-input" oninput="filterDropdown('city', this.value)">
                                 </div>
                             </div>
                             <ul id="list-city" class="dropdown-list overflow-y-auto p-2 space-y-1 custom-scrollbar"></ul>
