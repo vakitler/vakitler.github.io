@@ -1,6 +1,46 @@
 import './style.css';
+import {
+    createIcons,
+    Moon,
+    MapPin,
+    Settings,
+    Clock,
+    Utensils,
+    Coffee,
+    ExternalLink,
+    X,
+    ChevronDown,
+    Search,
+    Sun,
+    Compass,
+    Sunrise,
+    CloudSun,
+    Sunset,
+    Stars
+} from 'lucide';
 
-const lucide = window.lucide;
+const usedIcons = {
+    moon: Moon,
+    'map-pin': MapPin,
+    settings: Settings,
+    clock: Clock,
+    utensils: Utensils,
+    coffee: Coffee,
+    'external-link': ExternalLink,
+    x: X,
+    'chevron-down': ChevronDown,
+    search: Search,
+    sun: Sun,
+    compass: Compass,
+    sunrise: Sunrise,
+    'cloud-sun': CloudSun,
+    sunset: Sunset,
+    stars: Stars
+};
+
+function renderIcons() {
+    createIcons({ icons: usedIcons });
+}
 
 function registerServiceWorker() {
             if (!('serviceWorker' in navigator)) {
@@ -26,6 +66,10 @@ function registerServiceWorker() {
         let aksamTimeMs = null;
         let isRamadan = false;
         let currentRenderedDate = new Date().getDate();
+        let lastFocusedElement = null;
+        let scrollYBeforeModal = 0;
+        let heroInViewport = true;
+        let countdownPausedByState = false;
 
         const i18n = {
             tr: {
@@ -111,14 +155,81 @@ function registerServiceWorker() {
             { id: 'Yatsi', label: { tr: 'Yatsı', en: 'Isha' }, icon: 'stars' }
         ];
 
-        lucide.createIcons();
+        renderIcons();
+
+        const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+        function stopCountdownLoop() {
+            if (timerInterval) {
+                clearTimeout(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateMotionState() {
+            const shouldPause =
+                document.visibilityState !== 'visible' ||
+                reducedMotionQuery.matches ||
+                !heroInViewport;
+            document.documentElement.classList.toggle('motion-paused', shouldPause);
+
+            if (shouldPause) {
+                if (timerInterval) {
+                    stopCountdownLoop();
+                    countdownPausedByState = true;
+                }
+                return;
+            }
+
+            if (countdownPausedByState && targetTimeMs) {
+                countdownPausedByState = false;
+                startCountdown();
+            }
+        }
+
+        function setupHeroMotionObserver() {
+            const heroSection = document.getElementById('hero-section');
+            if (!heroSection || !('IntersectionObserver' in window)) {
+                heroInViewport = true;
+                updateMotionState();
+                return;
+            }
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    heroInViewport = Boolean(entries[0]?.isIntersecting);
+                    updateMotionState();
+                },
+                { threshold: 0.08 }
+            );
+
+            observer.observe(heroSection);
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
 
             applyLanguageTexts(); 
+            setupHeroMotionObserver();
+            updateMotionState();
+
+            if (typeof reducedMotionQuery.addEventListener === 'function') {
+                reducedMotionQuery.addEventListener('change', updateMotionState);
+            } else if (typeof reducedMotionQuery.addListener === 'function') {
+                reducedMotionQuery.addListener(updateMotionState);
+            }
 
             document.addEventListener("visibilitychange", () => {
+                updateMotionState();
+
+                if (document.visibilityState !== "visible") {
+                    if (timerInterval) {
+                        stopCountdownLoop();
+                        countdownPausedByState = true;
+                    }
+                    return;
+                }
+
                 if (document.visibilityState === "visible") {
                     if (prayerData) {
                         checkDateRollover();
@@ -132,17 +243,37 @@ function registerServiceWorker() {
                     ['country', 'region', 'city'].forEach(t => {
                         const dd = document.getElementById(`dropdown-${t}`);
                         const icon = document.getElementById(`icon-${t}`);
+                        const list = document.getElementById(`list-${t}`);
                         if(dd && !dd.classList.contains('hidden')) {
                             dd.classList.add('hidden');
+                            dd.classList.remove('dropdown-open-up');
+                            if (list) list.style.maxHeight = '';
                             if(icon) icon.classList.remove('rotate-180');
                         }
                     });
                 }
             });
 
-            const savedLocation = localStorage.getItem('selectedCity');
-            if (savedLocation) {
-                const city = JSON.parse(savedLocation);
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) {
+                settingsModal.addEventListener('click', (e) => {
+                    if (e.target === settingsModal) {
+                        toggleSettings();
+                    }
+                });
+            }
+
+            window.addEventListener('resize', () => {
+                ['country', 'region', 'city'].forEach((type) => {
+                    const dropdown = document.getElementById(`dropdown-${type}`);
+                    if (dropdown && !dropdown.classList.contains('hidden')) {
+                        applyDropdownLayout(type);
+                    }
+                });
+            });
+
+            const city = getSavedLocation();
+            if (city) {
                 updateLocationUI(city.cityName);
                 fetchPrayerTimes(city.id);
                 
@@ -172,9 +303,8 @@ function registerServiceWorker() {
             const todayDate = new Date().getDate();
             if (currentRenderedDate !== todayDate) {
                 currentRenderedDate = todayDate;
-                const savedLocation = localStorage.getItem('selectedCity');
-                if (savedLocation) {
-                    const city = JSON.parse(savedLocation);
+                const city = getSavedLocation();
+                if (city) {
                     fetchPrayerTimes(city.id); 
                 }
             }
@@ -185,9 +315,9 @@ function registerServiceWorker() {
             localStorage.setItem('appLang', currentLang);
             applyLanguageTexts();
             
-            const savedLocation = localStorage.getItem('selectedCity');
-            if (savedLocation) {
-                updateLocationUI(JSON.parse(savedLocation).cityName);
+            const city = getSavedLocation();
+            if (city) {
+                updateLocationUI(city.cityName);
             }
 
             if (prayerData) {
@@ -234,8 +364,12 @@ function registerServiceWorker() {
         function toggleDropdown(type) {
             ['country', 'region', 'city'].forEach(t => {
                 if(t !== type) {
-                    document.getElementById(`dropdown-${t}`).classList.add('hidden');
+                    const dd = document.getElementById(`dropdown-${t}`);
+                    dd.classList.add('hidden');
+                    dd.classList.remove('dropdown-open-up');
                     document.getElementById(`icon-${t}`).classList.remove('rotate-180');
+                    const list = document.getElementById(`list-${t}`);
+                    if (list) list.style.maxHeight = '';
                 }
             });
 
@@ -254,9 +388,38 @@ function registerServiceWorker() {
                 if(type === 'country') renderList('country', countriesData, 'UlkeID', 'UlkeAdi');
                 if(type === 'region') renderList('region', regionsData, 'SehirID', 'SehirAdi');
                 if(type === 'city') renderList('city', citiesData, 'IlceID', 'IlceAdi');
+                applyDropdownLayout(type);
                 
                 setTimeout(() => search.focus(), 100);
+            } else {
+                dropdown.classList.remove('dropdown-open-up');
+                const list = document.getElementById(`list-${type}`);
+                if (list) list.style.maxHeight = '';
             }
+        }
+
+        function applyDropdownLayout(type) {
+            const btn = document.getElementById(`btn-${type}`);
+            const dropdown = document.getElementById(`dropdown-${type}`);
+            const list = document.getElementById(`list-${type}`);
+            if (!btn || !dropdown || !list) return;
+
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+            const rect = btn.getBoundingClientRect();
+            const safeGap = 12;
+            const dropdownFixedPart = 88;
+            const minListHeight = 140;
+            const preferredMinBelow = 220;
+            const maxListHeight = 420;
+
+            const availableBelow = Math.max(minListHeight, Math.floor(viewportHeight - rect.bottom - safeGap - dropdownFixedPart));
+            const availableAbove = Math.max(minListHeight, Math.floor(rect.top - safeGap - dropdownFixedPart));
+
+            const openUp = availableAbove > availableBelow && availableBelow < preferredMinBelow;
+            dropdown.classList.toggle('dropdown-open-up', openUp);
+
+            const computedListHeight = Math.min(openUp ? availableAbove : availableBelow, maxListHeight);
+            list.style.maxHeight = `${computedListHeight}px`;
         }
 
         function renderList(type, data, idKey, nameKey, filterQuery = "") {
@@ -283,7 +446,11 @@ function registerServiceWorker() {
 
         function selectItem(type, id, name) {
             document.getElementById(`text-${type}`).innerText = name;
-            document.getElementById(`dropdown-${type}`).classList.add('hidden');
+            const dropdown = document.getElementById(`dropdown-${type}`);
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('dropdown-open-up');
+            const list = document.getElementById(`list-${type}`);
+            if (list) list.style.maxHeight = '';
             document.getElementById(`icon-${type}`).classList.remove('rotate-180');
 
             if(type === 'country') {
@@ -468,7 +635,7 @@ function registerServiceWorker() {
                 `;
                 container.appendChild(card);
             });
-            lucide.createIcons();
+            renderIcons();
         }
 
         function setupNextPrayer() {
@@ -476,19 +643,19 @@ function registerServiceWorker() {
 
             const now = new Date();
             const formattedToday = `${String(now.getDate()).padStart(2,'0')}.${String(now.getMonth()+1).padStart(2,'0')}.${now.getFullYear()}`;
-            const actualTodayData = prayerData.find(d => d.MiladiTarihKisa === formattedToday) || prayerData[0];
-            
-            const today = prayerData[0];
-            const tomorrow = prayerData[1];
+            const todayIndex = prayerData.findIndex(d => d.MiladiTarihKisa === formattedToday);
+            const normalizedTodayIndex = todayIndex === -1 ? 0 : todayIndex;
+            const today = prayerData[normalizedTodayIndex] || prayerData[0];
+            const tomorrow = prayerData[normalizedTodayIndex + 1];
 
-            isRamadan = actualTodayData.HicriTarihUzun.includes('Ramazan') || actualTodayData.HicriTarihUzun.includes('Ramadan');
+            isRamadan = today.HicriTarihUzun.includes('Ramazan') || today.HicriTarihUzun.includes('Ramadan');
             
-            const [ih, im] = actualTodayData.Imsak.split(':');
+            const [ih, im] = today.Imsak.split(':');
             const iDate = new Date();
             iDate.setHours(parseInt(ih), parseInt(im), 0, 0);
             imsakTimeMs = iDate.getTime();
 
-            const [ah, am] = actualTodayData.Aksam.split(':');
+            const [ah, am] = today.Aksam.split(':');
             const aDate = new Date();
             aDate.setHours(parseInt(ah), parseInt(am), 0, 0);
             aksamTimeMs = aDate.getTime();
@@ -561,18 +728,35 @@ function registerServiceWorker() {
         }
 
         function startCountdown() {
-            if (timerInterval) clearInterval(timerInterval);
+            stopCountdownLoop();
+
+            function scheduleNextTick() {
+                if (
+                    document.visibilityState !== 'visible' ||
+                    document.documentElement.classList.contains('motion-paused')
+                ) {
+                    countdownPausedByState = true;
+                    timerInterval = null;
+                    return;
+                }
+
+                const delayMs = 1000 - (Date.now() % 1000) || 1000;
+                timerInterval = setTimeout(updateTimer, delayMs);
+            }
             
             function updateTimer() {
                 checkDateRollover();
 
-                if (!targetTimeMs) return;
+                if (!targetTimeMs) {
+                    timerInterval = null;
+                    return;
+                }
 
                 const nowMs = Date.now();
                 const diff = targetTimeMs - nowMs;
 
                 if (diff <= 0) {
-                    clearInterval(timerInterval);
+                    stopCountdownLoop();
                     document.getElementById('countdown-timer').innerText = "00:00:00";
                     document.getElementById('prayer-progress').style.width = '100%';
                     
@@ -600,7 +784,7 @@ function registerServiceWorker() {
                 if (isRamadan && nowMs >= imsakTimeMs && nowMs < aksamTimeMs) {
                     if (iftarContainer.classList.contains('hidden')) {
                         iftarContainer.classList.remove('hidden');
-                        lucide.createIcons(); 
+                        renderIcons(); 
                     }
                     
                     const iftarDiff = aksamTimeMs - nowMs;
@@ -615,10 +799,11 @@ function registerServiceWorker() {
                         iftarContainer.classList.add('hidden');
                     }
                 }
+
+                scheduleNextTick();
             }
 
-            updateTimer(); // Beklemeden ilk tick'i at
-            timerInterval = setInterval(updateTimer, 1000); // Sonrasında her saniye devam et
+            updateTimer();
         }
 
         function initTheme() {
@@ -647,7 +832,7 @@ function registerServiceWorker() {
             const iconEl = document.getElementById('theme-icon');
             if(iconEl) {
                 iconEl.setAttribute('data-lucide', iconName);
-                lucide.createIcons();
+                renderIcons();
             }
         }
 
@@ -659,8 +844,101 @@ function registerServiceWorker() {
 
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
+            const dialog = document.getElementById('settings-dialog');
+            const isOpening = modal.classList.contains('hidden');
+
             modal.classList.toggle('hidden');
+            modal.setAttribute('aria-hidden', isOpening ? 'false' : 'true');
+
+            if (isOpening) {
+                scrollYBeforeModal = window.scrollY || window.pageYOffset || 0;
+                document.documentElement.classList.add('modal-open');
+                document.body.classList.add('modal-open');
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${scrollYBeforeModal}px`;
+                document.body.style.left = '0';
+                document.body.style.right = '0';
+                document.body.style.width = '100%';
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.documentElement.classList.remove('modal-open');
+                document.body.classList.remove('modal-open');
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.width = '';
+                document.body.style.overflow = '';
+                window.scrollTo(0, scrollYBeforeModal);
+                scrollYBeforeModal = 0;
+            }
+
+            if (isOpening) {
+                lastFocusedElement = document.activeElement;
+                setTimeout(() => {
+                    const focusableEls = getFocusableElements(modal);
+                    if (focusableEls.length > 0) {
+                        focusableEls[0].focus();
+                    } else if (dialog) {
+                        dialog.focus();
+                    }
+                }, 0);
+            } else if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+                lastFocusedElement.focus();
+                lastFocusedElement = null;
+            }
         }
+
+        function getSavedLocation() {
+            const savedLocation = localStorage.getItem('selectedCity');
+            if (!savedLocation) return null;
+
+            try {
+                const parsed = JSON.parse(savedLocation);
+                if (!parsed || typeof parsed !== 'object' || !parsed.id || !parsed.cityName) {
+                    localStorage.removeItem('selectedCity');
+                    return null;
+                }
+                return parsed;
+            } catch (err) {
+                console.error('Kaydedilen konum verisi bozuk:', err);
+                localStorage.removeItem('selectedCity');
+                return null;
+            }
+        }
+
+        function getFocusableElements(container) {
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+                .filter(el => !el.disabled && !el.getAttribute('aria-hidden'));
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('settings-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                toggleSettings();
+                return;
+            }
+
+            if (e.key !== 'Tab') return;
+
+            const focusableEls = getFocusableElements(modal);
+            if (focusableEls.length === 0) return;
+
+            const firstEl = focusableEls[0];
+            const lastEl = focusableEls[focusableEls.length - 1];
+
+            if (e.shiftKey && document.activeElement === firstEl) {
+                e.preventDefault();
+                lastEl.focus();
+            } else if (!e.shiftKey && document.activeElement === lastEl) {
+                e.preventDefault();
+                firstEl.focus();
+            }
+        });
 
         function updateLocationUI(name) {
             let displayName = name;
@@ -670,7 +948,7 @@ function registerServiceWorker() {
             }
             document.getElementById('current-location-text').innerHTML = 
                 `<i data-lucide="map-pin" class="w-3 h-3 sm:w-3.5 sm:h-3.5 flex-shrink-0"></i> <span class="truncate">${displayName}</span>`;
-            lucide.createIcons();
+            renderIcons();
         }
 
         function showMessage(msg) {
