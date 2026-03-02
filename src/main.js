@@ -20,22 +20,22 @@ import {
 } from 'lucide';
 
 const usedIcons = {
-    moon: Moon,
-    'map-pin': MapPin,
-    settings: Settings,
-    clock: Clock,
-    utensils: Utensils,
-    coffee: Coffee,
-    'external-link': ExternalLink,
-    x: X,
-    'chevron-down': ChevronDown,
-    search: Search,
-    sun: Sun,
-    compass: Compass,
-    sunrise: Sunrise,
-    'cloud-sun': CloudSun,
-    sunset: Sunset,
-    stars: Stars
+    Moon,
+    MapPin,
+    Settings,
+    Clock,
+    Utensils,
+    Coffee,
+    ExternalLink,
+    X,
+    ChevronDown,
+    Search,
+    Sun,
+    Compass,
+    Sunrise,
+    CloudSun,
+    Sunset,
+    Stars
 };
 
 function renderIcons() {

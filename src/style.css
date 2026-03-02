@@ -111,6 +111,9 @@ html.dark .app-header {
 }
 
 .hero-card {
+    background: transparent !important;
+    border-color: transparent;
+    backdrop-filter: none;
     box-shadow: 0 28px 70px -35px rgba(37, 99, 235, 0.65);
 }
 
