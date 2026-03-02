@@ -427,6 +427,22 @@ function registerServiceWorker() {
             const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
             const rect = btn.getBoundingClientRect();
             const safeGap = 12;
+            const isMobile = window.matchMedia('(max-width: 639px)').matches;
+
+            if (isMobile) {
+                const dropdownFixedPartMobile = 72;
+                const minListHeightMobile = 120;
+                const maxListHeightMobile = 280;
+                const availableBelowMobile = Math.max(
+                    minListHeightMobile,
+                    Math.floor(viewportHeight - rect.bottom - safeGap - dropdownFixedPartMobile)
+                );
+
+                dropdown.classList.remove('dropdown-open-up');
+                list.style.maxHeight = `${Math.min(availableBelowMobile, maxListHeightMobile)}px`;
+                return;
+            }
+
             const dropdownFixedPart = 88;
             const minListHeight = 140;
             const preferredMinBelow = 220;

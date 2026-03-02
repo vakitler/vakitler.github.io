@@ -412,6 +412,42 @@ html.motion-paused .shimmer {
     background-position: 0 0;
 }
 
+@media (max-width: 640px) {
+    body::before {
+        display: none;
+    }
+
+    .app-header {
+        backdrop-filter: none !important;
+    }
+
+    .modal-layer {
+        backdrop-filter: none !important;
+    }
+
+    .m3-card {
+        backdrop-filter: none;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    }
+
+    .hero-card {
+        box-shadow: 0 16px 32px -20px rgba(37, 99, 235, 0.45);
+    }
+
+    .hero-orb {
+        display: none;
+    }
+
+    .dropdown-panel,
+    .settings-dialog-panel {
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    }
+
+    .shimmer {
+        animation-duration: 2.4s;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
