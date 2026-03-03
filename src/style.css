@@ -3,12 +3,8 @@
 @tailwind utilities;
 
 :root {
-    --m3-surface: #f7f9ff;
     --m3-surface-elevated: #eef3fb;
     --m3-primary: #0061a4;
-    --m3-secondary: #535f70;
-    --m3-tertiary: #6b5778;
-    --m3-error: #ba1a1a;
     --m3-container: #d1e4ff;
     --focus-ring: 0 0 0 2px rgba(59, 130, 246, 0.6), 0 0 0 6px rgba(59, 130, 246, 0.18);
 }
