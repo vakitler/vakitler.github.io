@@ -29,6 +29,20 @@ export const i18n = {
         supportTitle: 'Destek Ol',
         buyCoffee: 'Bana bir kahve ısmarla',
         timeToIftar: 'İftara Kalan Süre'
+        ,
+        errGeoUnavailable: 'Tarayıcı konum servisi desteklemiyor veya izin verilmedi',
+        locDetecting: 'Konum algılanıyor...',
+        errGeoFailed: 'Konum alınamadı',
+        errGeoNoMatch: 'Konumunuz listede bulunamadı',
+        autoLocate: 'Konumu Otomatik Bul',
+        monthlyTimes: 'Aylık Vakitler',
+        religiousDays: 'Dini Günler',
+        printPdf: 'Yazdır / PDF',
+        today: 'Bugün',
+        daysLeft: '{n} Gün Kaldı',
+        activePrayerBadge: 'ŞU ANKİ VAKİT',
+        nextPrayerBadge: 'SIRADAKİ VAKİT',
+        close: 'Kapat'
     },
     en: {
         appTitle: 'Prayer Times',
@@ -59,6 +73,19 @@ export const i18n = {
         tomorrow: 'Tomorrow',
         supportTitle: 'Support Me',
         buyCoffee: 'Buy me a coffee',
-        timeToIftar: 'Time to Iftar'
+        timeToIftar: 'Time to Iftar',
+        errGeoUnavailable: 'Geolocation not available or permission denied',
+        locDetecting: 'Detecting location...',
+        errGeoFailed: 'Could not obtain location',
+        errGeoNoMatch: 'Could not match your location to the list',
+        autoLocate: 'Auto detect location',
+        monthlyTimes: 'Monthly Times',
+        religiousDays: 'Religious Days',
+        printPdf: 'Print / PDF',
+        today: 'Today',
+        daysLeft: '{n} Days Left',
+        activePrayerBadge: 'ACTIVE PRAYER',
+        nextPrayerBadge: 'NEXT PRAYER',
+        close: 'Close'
     }
 };

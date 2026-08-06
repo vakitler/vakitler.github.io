@@ -94,6 +94,18 @@
             </div>
         </section>
 
+        <!-- Quick Feature Actions Row -->
+        <div class="grid grid-cols-2 gap-3 w-full">
+            <button onclick="toggleMonthlyModal()" class="m3-card p-3.5 sm:p-4 flex items-center justify-center gap-2.5 hover:-translate-y-0.5 active:scale-95 transition-all text-slate-700 dark:text-slate-200 font-medium text-xs sm:text-sm">
+                <i data-lucide="calendar" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-blue-600 dark:text-blue-400"></i>
+                <span id="btn-monthly-text">Aylık Vakitler</span>
+            </button>
+            <button onclick="toggleReligiousDaysModal()" class="m3-card p-3.5 sm:p-4 flex items-center justify-center gap-2.5 hover:-translate-y-0.5 active:scale-95 transition-all text-slate-700 dark:text-slate-200 font-medium text-xs sm:text-sm">
+                <i data-lucide="sparkles" class="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-500"></i>
+                <span id="btn-religious-text">Dini Günler</span>
+            </button>
+        </div>
+
         <!-- Daily Times Grid -->
         <section class="grid grid-cols-2 gap-3 sm:gap-5 w-full" id="daily-times-container">
             <div class="m3-card rounded-3xl shimmer h-32 w-full"></div>
@@ -211,9 +223,74 @@
                     </div>
                 </div>
                 
+                <button id="btn-auto-locate" onclick="autoLocate()" class="w-full py-3.5 sm:py-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-2xl sm:rounded-3xl font-medium mt-3 sm:mt-4 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow transition-all">
+                    Konumu Otomatik Bul
+                </button>
+
                 <button id="btn-save-location" onclick="saveLocation()" class="w-full py-3.5 sm:py-4 bg-blue-600 dark:bg-blue-700 text-white rounded-2xl sm:rounded-3xl font-medium mt-5 sm:mt-6 shadow-lg shadow-blue-500/30 dark:shadow-none transition-all hover:bg-blue-700 dark:hover:bg-blue-600 hover:-translate-y-1">
                     Konumu Kaydet
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Prayer Times Modal -->
+    <div id="monthly-modal" role="dialog" aria-modal="true" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+        <div class="settings-dialog-panel bg-white dark:bg-slate-900 w-full max-w-2xl p-5 sm:p-6 animate-slide-up transition-colors duration-300 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800 print-hide">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                    <h2 id="monthly-title" class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Aylık Vakit Çizelgesi</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="printMonthlyTable()" class="px-3 py-1.5 text-xs font-semibold rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/70 transition-colors flex items-center gap-1.5">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                        <span id="btn-print-text">Yazdır / PDF</span>
+                    </button>
+                    <button onclick="toggleMonthlyModal(false)" aria-label="Kapat" class="text-slate-400 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto mt-4 custom-scrollbar flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-50 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400 micro-label uppercase tracking-widest backdrop-blur-md">
+                        <tr>
+                            <th class="py-3 px-3 sm:px-4">Tarih</th>
+                            <th class="py-3 px-2 sm:px-3">İmsak</th>
+                            <th class="py-3 px-2 sm:px-3">Güneş</th>
+                            <th class="py-3 px-2 sm:px-3">Öğle</th>
+                            <th class="py-3 px-2 sm:px-3">İkindi</th>
+                            <th class="py-3 px-2 sm:px-3">Akşam</th>
+                            <th class="py-3 px-2 sm:px-3">Yatsı</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                        <!-- Rendered dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Religious Days Modal -->
+    <div id="religious-days-modal" role="dialog" aria-modal="true" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+        <div class="settings-dialog-panel bg-white dark:bg-slate-900 w-full max-w-md p-5 sm:p-6 animate-slide-up transition-colors duration-300 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
+            <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-amber-500"></i>
+                    <h2 id="religious-title" class="text-base sm:text-lg font-bold text-slate-800 dark:text-white">Dini Günler & Geceler</h2>
+                </div>
+                <button onclick="toggleReligiousDaysModal(false)" aria-label="Kapat" class="text-slate-400 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 flex-shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div id="religious-days-list" class="overflow-y-auto mt-4 space-y-3 custom-scrollbar flex-1">
+                <!-- Rendered dynamically -->
             </div>
         </div>
     </div>

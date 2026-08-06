@@ -357,13 +357,40 @@ html.dark .dropdown-search-input {
 
 .active-prayer {
     background-color: var(--m3-container) !important;
-    border: 2px solid var(--m3-primary);
-    transform: translateY(-2px);
+    border: 2px solid var(--m3-primary) !important;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 28px -6px rgba(0, 97, 164, 0.35);
+    animation: activeCardPulse 3s infinite ease-in-out;
 }
 
 html.dark .active-prayer {
     background-color: #003a5e !important;
-    border-color: #a8c7fa;
+    border-color: #a8c7fa !important;
+    box-shadow: 0 12px 28px -6px rgba(168, 199, 250, 0.25);
+}
+
+@keyframes activeCardPulse {
+    0%, 100% {
+        box-shadow: 0 12px 28px -6px rgba(0, 97, 164, 0.35);
+    }
+    50% {
+        box-shadow: 0 16px 36px -4px rgba(0, 97, 164, 0.55);
+    }
+}
+
+@media print {
+    body > *:not(#monthly-modal) {
+        display: none !important;
+    }
+    #monthly-modal {
+        display: block !important;
+        position: relative !important;
+        background: white !important;
+        color: black !important;
+    }
+    .print-hide {
+        display: none !important;
+    }
 }
 
 ::-webkit-scrollbar { width: 6px; }

@@ -16,6 +16,7 @@ export function applyLanguageTexts({
     const labelRegionEl = getEl('label-region');
     const labelCityEl = getEl('label-city');
     const saveLocationEl = getEl('btn-save-location');
+    const autoLocateEl = getEl('btn-auto-locate');
     const searchCountryEl = getEl('search-country');
     const searchRegionEl = getEl('search-region');
     const searchCityEl = getEl('search-city');
@@ -31,6 +32,7 @@ export function applyLanguageTexts({
     labelRegionEl.innerText = t('city');
     labelCityEl.innerText = t('district');
     saveLocationEl.innerText = t('saveLocation');
+    if (autoLocateEl) autoLocateEl.innerText = t('autoLocate') || 'Konumu Otomatik Bul';
 
     searchCountryEl.placeholder = t('searchCountry');
     searchRegionEl.placeholder = t('searchCity');
@@ -40,6 +42,21 @@ export function applyLanguageTexts({
 
     const iftarTitle = getEl('iftar-title');
     if (iftarTitle) iftarTitle.innerText = t('timeToIftar');
+
+    const btnMonthlyText = getEl('btn-monthly-text');
+    if (btnMonthlyText) btnMonthlyText.innerText = t('monthlyTimes');
+
+    const btnReligiousText = getEl('btn-religious-text');
+    if (btnReligiousText) btnReligiousText.innerText = t('religiousDays');
+
+    const monthlyTitle = getEl('monthly-title');
+    if (monthlyTitle) monthlyTitle.innerText = t('monthlyTimes');
+
+    const btnPrintText = getEl('btn-print-text');
+    if (btnPrintText) btnPrintText.innerText = t('printPdf');
+
+    const religiousTitle = getEl('religious-title');
+    if (religiousTitle) religiousTitle.innerText = t('religiousDays');
 
     if (!selectedCountryData) {
         getEl('text-country').innerText = getEl('btn-country').disabled ? t('loading') : t('selectCountry');

@@ -12,6 +12,7 @@ import { i18n } from '../i18n/translations';
 import { dropdownTypes, hijriMonthMap, prayers } from '../constants/prayerMeta';
 import { createLocationController } from './locationController';
 import { createMotionCountdownController } from './motionCountdownController';
+import { createModalsController } from '../ui/modalsController';
 import { runNonCriticalTask } from '../utils/scheduler';
 
 export function createAppController({ createIcons, usedIcons }) {
@@ -79,6 +80,13 @@ export function createAppController({ createIcons, usedIcons }) {
         }
     });
 
+    const modalsController = createModalsController({
+        getEl,
+        renderIcons,
+        t,
+        currentLang: () => currentLang
+    });
+
     locationController = createLocationController({
         apiBase: API_BASE,
         fetchJson,
@@ -91,6 +99,7 @@ export function createAppController({ createIcons, usedIcons }) {
         updateLocationUI,
         onPrayerDataReady: (data) => {
             prayerData = data;
+            modalsController.setPrayerData(data);
             renderToday();
             setupNextPrayer();
         }
@@ -112,6 +121,7 @@ export function createAppController({ createIcons, usedIcons }) {
     const selectItem = dropdownManager.selectItem;
     const toggleDropdown = dropdownManager.toggleDropdown;
     const saveLocation = () => locationController.saveLocation();
+    const autoLocate = () => locationController.autoDetectLocation && locationController.autoDetectLocation();
 
     function applyLanguageTexts() {
         const {
@@ -295,10 +305,14 @@ export function createAppController({ createIcons, usedIcons }) {
         filterDropdown,
         init,
         saveLocation,
+        autoLocate,
         selectItem,
         toggleDropdown,
         toggleLang,
         toggleSettings,
-        toggleTheme
+        toggleTheme,
+        toggleMonthlyModal: (show) => modalsController.toggleMonthlyModal(show),
+        toggleReligiousDaysModal: (show) => modalsController.toggleReligiousDaysModal(show),
+        printMonthlyTable: () => modalsController.printMonthlyTable()
     };
 }
