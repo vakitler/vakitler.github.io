@@ -28,6 +28,17 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
         const container = getEl('monthly-table-body');
         if (!container || !currentPrayerData) return;
 
+        const printLoc = getEl('print-location-text');
+        if (printLoc) {
+            try {
+                const savedLoc = localStorage.getItem('selectedCity');
+                if (savedLoc) {
+                    const parsed = JSON.parse(savedLoc);
+                    printLoc.innerText = parsed.cityName || '';
+                }
+            } catch (e) {}
+        }
+
         container.innerHTML = '';
 
         const todayStr = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');

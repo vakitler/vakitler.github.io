@@ -1,3 +1,5 @@
+import { DISTRICT_COORDS } from '../constants/districtCoords';
+
 export function createLocationController({
     apiBase,
     fetchJson,
@@ -82,7 +84,7 @@ export function createLocationController({
 
         getEl('text-country').innerText = city.country.name;
         getEl('text-region').innerText = city.region.name;
-        getEl('text-city').innerText = city.city.name;
+        getEl('text-city').innerText = city.city.displayName || city.city.name;
 
         getEl('btn-region').disabled = false;
         getEl('btn-city').disabled = false;
@@ -172,37 +174,113 @@ export function createLocationController({
         return R * c;
     }
 
+    function getDistrictCoords(districtName, regionName) {
+        const key = `${districtName}_${regionName}`;
+        if (DISTRICT_COORDS[key]) return DISTRICT_COORDS[key];
+
+        const normKey = normalizeName(key);
+        for (const [k, coords] of Object.entries(DISTRICT_COORDS)) {
+            if (normalizeName(k) === normKey) return coords;
+        }
+        return null;
+    }
+
+    async function getReverseGeocode(lat, lon) {
+        // Try BigDataCloud API first (fast, reliable CORS-enabled client API)
+        try {
+            const bdcUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=tr`;
+            const bdcRes = await fetchJson(bdcUrl, false);
+            if (bdcRes && bdcRes.countryCode) {
+                const adminNames = (bdcRes.localityInfo?.administrative || []).map((a) => a.name);
+                return {
+                    address: {
+                        country: bdcRes.countryName,
+                        country_code: bdcRes.countryCode,
+                        province: bdcRes.principalSubdivision,
+                        state: bdcRes.principalSubdivision,
+                        city: bdcRes.city,
+                        county: bdcRes.locality,
+                        town: bdcRes.locality,
+                        locality: bdcRes.locality,
+                        admin_names: adminNames
+                    },
+                    display_name: [bdcRes.locality, bdcRes.city, bdcRes.principalSubdivision, bdcRes.countryName].filter(Boolean).join(', ')
+                };
+            }
+        } catch (err) {
+            console.warn('BigDataCloud reverse geocode failed, trying Nominatim fallback', err);
+        }
+
+        // Fallback to Nominatim API
+        try {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=tr`;
+            const res = await fetchJson(url, false);
+            if (res && res.address) {
+                return res;
+            }
+        } catch (err) {
+            console.warn('Nominatim reverse geocode failed', err);
+        }
+
+        return null;
+    }
+
+    function extractLocalDistrictName(address, regionName) {
+        if (!address) return null;
+        const normRegion = normalizeName(regionName);
+
+        if (Array.isArray(address.admin_names)) {
+            const candidate = address.admin_names.find((name) => {
+                const norm = normalizeName(name);
+                return norm &&
+                       norm !== normRegion &&
+                       !norm.includes('bolgesi') &&
+                       !norm.includes('turkiye') &&
+                       !norm.includes('turkey');
+            });
+            if (candidate) return candidate;
+        }
+
+        const candidate = [
+            address.county,
+            address.district,
+            address.town,
+            address.municipality,
+            address.suburb,
+            address.locality
+        ].find((name) => {
+            const norm = normalizeName(name);
+            return norm && norm !== normRegion;
+        });
+
+        return candidate || null;
+    }
+
     async function findNearestDistrictByCoords(lat, lon, regionName, countryName, cities) {
         if (!cities || cities.length === 0) return null;
         if (cities.length === 1) return cities[0];
 
-        try {
-            const results = await Promise.all(
-                cities.map(async (cityItem) => {
-                    try {
-                        const q = encodeURIComponent(`${cityItem.IlceAdi}, ${regionName}, ${countryName}`);
-                        const searchUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${q}&limit=1`;
-                        const res = await fetchJson(searchUrl, false);
-                        if (res && res.length > 0 && res[0].lat && res[0].lon) {
-                            const dist = calculateDistanceKm(lat, lon, parseFloat(res[0].lat), parseFloat(res[0].lon));
-                            return { cityItem, dist };
-                        }
-                    } catch (e) {
-                        console.warn('Geo search error for district:', cityItem.IlceAdi, e);
-                    }
-                    return null;
-                })
-            );
+        let minDistance = Infinity;
+        let nearestCity = null;
 
-            const validResults = results.filter(Boolean);
-            if (validResults.length === 0) return cities[0];
-
-            validResults.sort((a, b) => a.dist - b.dist);
-            return validResults[0].cityItem;
-        } catch (err) {
-            console.error('Error finding nearest district:', err);
-            return cities[0];
+        for (const cityItem of cities) {
+            const coords = getDistrictCoords(cityItem.IlceAdi, regionName);
+            if (coords) {
+                const dist = calculateDistanceKm(lat, lon, coords[0], coords[1]);
+                console.log(`📏 Distance to ${cityItem.IlceAdi}: ${dist.toFixed(2)} km`);
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    nearestCity = cityItem;
+                }
+            }
         }
+
+        if (nearestCity) {
+            console.log('📍 Geographically Nearest Listed District Selected:', nearestCity.IlceAdi, `(${minDistance.toFixed(2)} km away)`);
+            return nearestCity;
+        }
+
+        return cities[0];
     }
 
     async function autoDetectLocation() {
@@ -218,13 +296,12 @@ export function createLocationController({
                 try {
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
-                    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&accept-language=tr`;
 
-                    let geo = null;
-                    try {
-                        geo = await fetchJson(url, false);
-                    } catch (err) {
-                        console.error('Reverse geocode failed', err);
+                    const geo = await getReverseGeocode(lat, lon);
+                    console.log('📍 GPS Coords:', lat, lon);
+                    console.log('🌐 Reverse Geocode Result:', geo);
+
+                    if (!geo) {
                         showMessage(t('errGeoFailed'));
                         resolve(false);
                         return;
@@ -261,7 +338,7 @@ export function createLocationController({
                     }
 
                     const fullGeoText = normalizeName(
-                        `${geo.display_name || ''} ${Object.values(address).join(' ')}`
+                        `${geo.display_name || ''} ${Object.values(address).flat().join(' ')}`
                     );
 
                     // Load regions for found country
@@ -277,7 +354,8 @@ export function createLocationController({
                         address.county,
                         address.district,
                         address.state_district,
-                        address.town
+                        address.town,
+                        ...(address.admin_names || [])
                     ].filter(Boolean).filter((cand) => {
                         const norm = normalizeName(cand);
                         return !IGNORED_GEO_TERMS.some((term) => norm.includes(term) && norm !== 'marmara ereglisi');
@@ -324,49 +402,60 @@ export function createLocationController({
                         return;
                     }
 
+                    console.log('🏙️ Matched Region:', foundRegion.SehirAdi, '(ID:', foundRegion.SehirID, ')');
+
                     // Load cities/districts for found region
                     await loadCities(foundRegion.SehirID);
 
-                    const normRegionName = normalizeName(foundRegion.SehirAdi);
+                    console.log('📋 Available Diyanet Districts for Region:', citiesData.map((c) => c.IlceAdi));
 
-                    const rawCandidates = [
-                        address.town,
+                    const normRegionName = normalizeName(foundRegion.SehirAdi);
+                    const detectedDistrictName = extractLocalDistrictName(address, foundRegion.SehirAdi);
+
+                    const rawDistrictCandidates = [
                         address.county,
                         address.district,
+                        address.town,
                         address.city_district,
                         address.municipality,
                         address.suburb,
                         address.village,
                         address.neighbourhood,
                         address.state_district,
-                        address.city
+                        address.locality,
+                        ...(address.admin_names || [])
                     ].filter(Boolean);
 
-                    const districtCandidates = rawCandidates.filter((cand) => {
-                        const norm = normalizeName(cand);
-                        return norm !== normRegionName;
-                    });
+                    console.log('🔍 District Candidates from Geocoder:', rawDistrictCandidates);
+                    console.log('📍 Extracted Local District Name:', detectedDistrictName);
 
                     let foundCity = null;
+                    let matchPass = '';
 
-                    // Pass 1: Exact match on district candidates (excluding generic region name)
-                    for (const cand of districtCandidates) {
+                    // Pass 1: Exact match of specific district candidates against citiesData (excluding generic region name)
+                    for (const cand of rawDistrictCandidates) {
                         const normCand = normalizeName(cand);
-                        if (!normCand) continue;
+                        if (!normCand || normCand === normRegionName) continue;
                         foundCity = citiesData.find((c) => normalizeName(c.IlceAdi) === normCand);
-                        if (foundCity) break;
+                        if (foundCity) {
+                            matchPass = `Pass 1 Exact Match (candidate: "${cand}")`;
+                            break;
+                        }
                     }
 
-                    // Pass 2: Partial match on district candidates
+                    // Pass 2: Partial match of district candidates (excluding generic region name to prioritize specific sub-districts)
                     if (!foundCity) {
-                        for (const cand of districtCandidates) {
+                        for (const cand of rawDistrictCandidates) {
                             const normCand = normalizeName(cand);
-                            if (!normCand) continue;
+                            if (!normCand || normCand === normRegionName) continue;
                             foundCity = citiesData.find((c) => {
                                 const normIlce = normalizeName(c.IlceAdi);
                                 return normIlce !== normRegionName && (normIlce.includes(normCand) || normCand.includes(normIlce));
                             });
-                            if (foundCity) break;
+                            if (foundCity) {
+                                matchPass = `Pass 2 Partial Match (candidate: "${cand}")`;
+                                break;
+                            }
                         }
                     }
 
@@ -376,28 +465,35 @@ export function createLocationController({
                             const normIlce = normalizeName(c.IlceAdi);
                             return normIlce && normIlce !== normRegionName && fullGeoText.includes(normIlce);
                         });
+                        if (foundCity) matchPass = 'Pass 3 FullGeoText Match';
                     }
 
-                    // Pass 4: Calculate geographic distance to district centers
-                    if (!foundCity) {
-                        const candidatesForDistance = citiesData.filter((c) => normalizeName(c.IlceAdi) !== normRegionName);
+                    // Pass 4: Geographically Nearest District (calculates distance in km to all listed districts)
+                    if (!foundCity && citiesData.length > 1) {
                         foundCity = await findNearestDistrictByCoords(
                             lat,
                             lon,
                             foundRegion.SehirAdi,
                             foundCountry.UlkeAdi,
-                            candidatesForDistance.length > 0 ? candidatesForDistance : citiesData
+                            citiesData
                         );
+                        if (foundCity) matchPass = 'Pass 4 Geographically Nearest District';
                     }
 
-                    // Pass 5: Fallback to region-named district or first item
+                    // Pass 5: Fallback to Central district (matching region name or "MERKEZ")
                     if (!foundCity) {
-                        foundCity = citiesData.find((c) => normalizeName(c.IlceAdi) === normRegionName) || citiesData[0];
+                        foundCity = citiesData.find((c) => normalizeName(c.IlceAdi) === normRegionName) ||
+                                    citiesData.find((c) => normalizeName(c.IlceAdi).includes('merkez'));
+                        if (foundCity) matchPass = 'Pass 5 Central/Merkez Fallback';
                     }
 
+                    // Pass 6: Fallback to first item in citiesData
                     if (!foundCity && citiesData.length > 0) {
                         foundCity = citiesData[0];
+                        matchPass = 'Pass 6 First District Fallback';
                     }
+
+                    console.log('✅ Final Selected District:', foundCity ? foundCity.IlceAdi : 'NONE', '| Strategy:', matchPass);
 
                     if (!foundCity) {
                         showMessage(t('errGeoNoMatch'));
@@ -454,9 +550,13 @@ export function createLocationController({
             return;
         }
 
+        const cityName = (normalizeName(selectedRegionData.name) === normalizeName(selectedCityData.name))
+            ? selectedRegionData.name
+            : `${selectedRegionData.name}, ${selectedCityData.name}`;
+
         const cityData = {
             id: selectedCityData.id,
-            cityName: `${selectedRegionData.name}, ${selectedCityData.name}`,
+            cityName,
             country: selectedCountryData,
             region: selectedRegionData,
             city: selectedCityData

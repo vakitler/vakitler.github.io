@@ -379,17 +379,87 @@ html.dark .active-prayer {
 }
 
 @media print {
+    @page {
+        margin: 1cm;
+        size: auto;
+    }
+
+    body {
+        background: white !important;
+        color: black !important;
+        font-family: system-ui, -apple-system, sans-serif !important;
+    }
+
     body > *:not(#monthly-modal) {
         display: none !important;
     }
+
     #monthly-modal {
         display: block !important;
-        position: relative !important;
+        position: static !important;
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    #monthly-modal .settings-dialog-panel {
+        position: static !important;
+        max-height: none !important;
+        height: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
         background: white !important;
         color: black !important;
     }
+
+    #monthly-modal .overflow-y-auto {
+        max-height: none !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    #monthly-modal table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        color: black !important;
+        font-size: 11pt !important;
+    }
+
+    #monthly-modal th,
+    #monthly-modal td {
+        border: 1px solid #94a3b8 !important;
+        color: black !important;
+        padding: 6px 10px !important;
+        background: transparent !important;
+    }
+
+    #monthly-modal th {
+        background-color: #f1f5f9 !important;
+        font-weight: bold !important;
+    }
+
+    #monthly-modal tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
     .print-hide {
         display: none !important;
+    }
+
+    .print-show {
+        display: block !important;
     }
 }
 
