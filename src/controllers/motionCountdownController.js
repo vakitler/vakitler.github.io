@@ -30,7 +30,7 @@ export function createMotionCountdownController({
         function scheduleNextTick() {
             if (
                 document.visibilityState !== 'visible' ||
-                document.documentElement.classList.contains('motion-paused')
+                !heroInViewport
             ) {
                 countdownPausedByState = true;
                 timerInterval = null;
@@ -104,13 +104,17 @@ export function createMotionCountdownController({
     }
 
     function updateMotionState() {
-        const shouldPause =
+        const shouldPauseAnimations =
             document.visibilityState !== 'visible' ||
             reducedMotionQuery.matches ||
             !heroInViewport;
-        document.documentElement.classList.toggle('motion-paused', shouldPause);
+        document.documentElement.classList.toggle('motion-paused', shouldPauseAnimations);
 
-        if (shouldPause) {
+        const shouldPauseTimer =
+            document.visibilityState !== 'visible' ||
+            !heroInViewport;
+
+        if (shouldPauseTimer) {
             if (timerInterval) {
                 stopCountdownLoop();
                 countdownPausedByState = true;

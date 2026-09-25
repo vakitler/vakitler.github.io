@@ -1,4 +1,5 @@
 import { getUpcomingReligiousDays } from '../core/religiousDays';
+import { formatDateKey } from '../utils/time';
 
 export function createModalsController({ getEl, renderIcons, t, currentLang }) {
     let currentPrayerData = null;
@@ -17,9 +18,11 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
         if (shouldShow) {
             renderMonthlyTable();
             modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
         } else {
             modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('modal-open');
         }
     }
@@ -41,7 +44,7 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
 
         container.innerHTML = '';
 
-        const todayStr = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '.');
+        const todayStr = formatDateKey(new Date());
 
         const fragment = document.createDocumentFragment();
 
@@ -82,9 +85,11 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
         if (shouldShow) {
             renderReligiousDaysList();
             modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
             document.body.classList.add('modal-open');
         } else {
             modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
             document.body.classList.remove('modal-open');
         }
     }
@@ -108,7 +113,7 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
             if (isToday) {
                 badgeHtml = `<span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full bg-emerald-500 text-white shadow-sm">${t('today')}</span>`;
             } else if (isPast) {
-                badgeHtml = `<span class="px-2.5 py-1 text-[10px] font-medium uppercase rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 opacity-60">Geçti</span>`;
+                badgeHtml = `<span class="px-2.5 py-1 text-[10px] font-medium uppercase rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 opacity-60">${t('past')}</span>`;
             } else {
                 badgeHtml = `<span class="px-2.5 py-1 text-[10px] font-semibold rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">${t('daysLeft').replace('{n}', item.daysLeft)}</span>`;
             }
@@ -148,10 +153,47 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
     }
 
     function printMonthlyTable() {
+        renderMonthlyTable();
         window.print();
     }
 
+    function bindEvents() {
+        // Close on backdrop click
+        ['monthly-modal', 'religious-days-modal'].forEach((modalId) => {
+            const modal = getEl(modalId);
+            if (modal) {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        if (modalId === 'monthly-modal') toggleMonthlyModal(false);
+                        else toggleReligiousDaysModal(false);
+                    }
+                });
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const monthlyModal = getEl('monthly-modal');
+                if (monthlyModal && !monthlyModal.classList.contains('hidden')) {
+                    toggleMonthlyModal(false);
+                    return;
+                }
+                const religiousModal = getEl('religious-days-modal');
+                if (religiousModal && !religiousModal.classList.contains('hidden')) {
+                    toggleReligiousDaysModal(false);
+                }
+            }
+        });
+
+        // Auto-render table before printing so Ctrl+P always prints filled table
+        window.addEventListener('beforeprint', () => {
+            renderMonthlyTable();
+        });
+    }
+
     return {
+        bindEvents,
         setPrayerData,
         toggleMonthlyModal,
         toggleReligiousDaysModal,

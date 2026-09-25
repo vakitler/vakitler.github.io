@@ -50,13 +50,34 @@ export function applyLanguageTexts({
     if (btnReligiousText) btnReligiousText.innerText = t('religiousDays');
 
     const monthlyTitle = getEl('monthly-title');
-    if (monthlyTitle) monthlyTitle.innerText = t('monthlyTimes');
+    if (monthlyTitle) monthlyTitle.innerText = t('monthlyTableTitle');
+
+    const printMonthlyTitle = getEl('print-monthly-title');
+    if (printMonthlyTitle) printMonthlyTitle.innerText = t('monthlyTableTitle');
+
+    const printHeaderTitle = getEl('print-header-title');
+    if (printHeaderTitle) printHeaderTitle.innerText = t('printHeaderTitle');
 
     const btnPrintText = getEl('btn-print-text');
     if (btnPrintText) btnPrintText.innerText = t('printPdf');
 
     const religiousTitle = getEl('religious-title');
-    if (religiousTitle) religiousTitle.innerText = t('religiousDays');
+    if (religiousTitle) religiousTitle.innerText = t('religiousModalTitle');
+
+    const thDate = getEl('th-date');
+    if (thDate) thDate.innerText = t('tableDate');
+    const thImsak = getEl('th-imsak');
+    if (thImsak) thImsak.innerText = t('imsak');
+    const thGunes = getEl('th-gunes');
+    if (thGunes) thGunes.innerText = t('gunes');
+    const thOgle = getEl('th-ogle');
+    if (thOgle) thOgle.innerText = t('ogle');
+    const thIkindi = getEl('th-ikindi');
+    if (thIkindi) thIkindi.innerText = t('ikindi');
+    const thAksam = getEl('th-aksam');
+    if (thAksam) thAksam.innerText = t('aksam');
+    const thYatsi = getEl('th-yatsi');
+    if (thYatsi) thYatsi.innerText = t('yatsi');
 
     if (!selectedCountryData) {
         getEl('text-country').innerText = getEl('btn-country').disabled ? t('loading') : t('selectCountry');

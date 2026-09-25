@@ -42,7 +42,18 @@ export const i18n = {
         daysLeft: '{n} Gün Kaldı',
         activePrayerBadge: 'ŞU ANKİ VAKİT',
         nextPrayerBadge: 'SIRADAKİ VAKİT',
-        close: 'Kapat'
+        close: 'Kapat',
+        past: 'Geçti',
+        tableDate: 'Tarih',
+        monthlyTableTitle: 'Aylık Vakit Çizelgesi',
+        printHeaderTitle: 'Vakitler Namaz Vakitleri',
+        religiousModalTitle: 'Dini Günler & Geceler',
+        imsak: 'İmsak',
+        gunes: 'Güneş',
+        ogle: 'Öğle',
+        ikindi: 'İkindi',
+        aksam: 'Akşam',
+        yatsi: 'Yatsı'
     },
     en: {
         appTitle: 'Prayer Times',
@@ -86,6 +97,17 @@ export const i18n = {
         daysLeft: '{n} Days Left',
         activePrayerBadge: 'ACTIVE PRAYER',
         nextPrayerBadge: 'NEXT PRAYER',
-        close: 'Close'
+        close: 'Close',
+        past: 'Past',
+        tableDate: 'Date',
+        monthlyTableTitle: 'Monthly Prayer Schedule',
+        printHeaderTitle: 'Prayer Times Schedule',
+        religiousModalTitle: 'Religious Days & Nights',
+        imsak: 'Fajr',
+        gunes: 'Sunrise',
+        ogle: 'Dhuhr',
+        ikindi: 'Asr',
+        aksam: 'Maghrib',
+        yatsi: 'Isha'
     }
 };

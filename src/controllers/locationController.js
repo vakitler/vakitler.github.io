@@ -574,22 +574,32 @@ export function createLocationController({
         const formattedToday = formatDateKey(new Date());
 
         if (cachedData) {
-            const parsedData = JSON.parse(cachedData);
-            const todayIndex = parsedData.findIndex((d) => d.MiladiTarihKisa === formattedToday);
+            try {
+                const parsedData = JSON.parse(cachedData);
+                const todayIndex = parsedData.findIndex((d) => d.MiladiTarihKisa === formattedToday);
 
-            if (todayIndex !== -1) {
-                onPrayerDataReady(parsedData.slice(todayIndex));
-                return;
+                if (todayIndex !== -1) {
+                    onPrayerDataReady(parsedData);
+                    return;
+                }
+            } catch (e) {
+                localStorage.removeItem(cacheKey);
             }
         }
 
         try {
             const data = await fetchJson(`${apiBase}/vakitler/${cityId}`, false);
             localStorage.setItem(cacheKey, JSON.stringify(data));
-
-            const todayIndex = data.findIndex((d) => d.MiladiTarihKisa === formattedToday);
-            onPrayerDataReady(todayIndex !== -1 ? data.slice(todayIndex) : data);
+            onPrayerDataReady(data);
         } catch (err) {
+            if (cachedData) {
+                try {
+                    const fallbackData = JSON.parse(cachedData);
+                    if (Array.isArray(fallbackData) && fallbackData.length > 0) {
+                        onPrayerDataReady(fallbackData);
+                    }
+                } catch (e) {}
+            }
             showMessage(t('errFetchTimes'));
             console.error(err);
         }

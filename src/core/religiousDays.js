@@ -91,9 +91,10 @@ export function getUpcomingReligiousDays(nowDate = new Date()) {
     const today = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
 
     return RELIGIOUS_DAYS.map((day) => {
-        const targetDate = new Date(day.dateStr);
+        const [year, month, dateNum] = day.dateStr.split('-').map(Number);
+        const targetDate = new Date(year, month - 1, dateNum);
         const diffMs = targetDate.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
         return {
             ...day,

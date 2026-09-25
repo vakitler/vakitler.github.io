@@ -33,6 +33,16 @@
     <meta name="twitter:description" content="Konuma göre günlük namaz vakitlerini takip edin.">
     
     <title>Vakitler</title>
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+    </script>
 </head>
 <body class="min-h-screen pb-20 w-full antialiased">
 
@@ -235,14 +245,14 @@
     </div>
 
     <!-- Monthly Prayer Times Modal -->
-    <div id="monthly-modal" role="dialog" aria-modal="true" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+    <div id="monthly-modal" role="dialog" aria-modal="true" aria-labelledby="monthly-title" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
         <div class="settings-dialog-panel bg-white dark:bg-slate-900 w-full max-w-2xl p-5 sm:p-6 animate-slide-up transition-colors duration-300 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
             <!-- Printable Header (Visible only when printing) -->
             <div class="hidden print-show mb-4 pb-3 border-b border-slate-300">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-xl font-bold text-black">Vakitler Namaz Vakitleri</h1>
+                        <h1 id="print-header-title" class="text-xl font-bold text-black">Vakitler Namaz Vakitleri</h1>
                         <p id="print-location-text" class="text-xs text-slate-700 font-semibold mt-0.5"></p>
                     </div>
                     <div class="text-right">
@@ -271,13 +281,13 @@
                 <table class="w-full text-left border-collapse">
                     <thead class="sticky top-0 bg-slate-50 dark:bg-slate-800/90 text-slate-500 dark:text-slate-400 micro-label uppercase tracking-widest backdrop-blur-md">
                         <tr>
-                            <th class="py-3 px-3 sm:px-4">Tarih</th>
-                            <th class="py-3 px-2 sm:px-3">İmsak</th>
-                            <th class="py-3 px-2 sm:px-3">Güneş</th>
-                            <th class="py-3 px-2 sm:px-3">Öğle</th>
-                            <th class="py-3 px-2 sm:px-3">İkindi</th>
-                            <th class="py-3 px-2 sm:px-3">Akşam</th>
-                            <th class="py-3 px-2 sm:px-3">Yatsı</th>
+                            <th id="th-date" class="py-3 px-3 sm:px-4">Tarih</th>
+                            <th id="th-imsak" class="py-3 px-2 sm:px-3">İmsak</th>
+                            <th id="th-gunes" class="py-3 px-2 sm:px-3">Güneş</th>
+                            <th id="th-ogle" class="py-3 px-2 sm:px-3">Öğle</th>
+                            <th id="th-ikindi" class="py-3 px-2 sm:px-3">İkindi</th>
+                            <th id="th-aksam" class="py-3 px-2 sm:px-3">Akşam</th>
+                            <th id="th-yatsi" class="py-3 px-2 sm:px-3">Yatsı</th>
                         </tr>
                     </thead>
                     <tbody id="monthly-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -289,7 +299,7 @@
     </div>
 
     <!-- Religious Days Modal -->
-    <div id="religious-days-modal" role="dialog" aria-modal="true" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
+    <div id="religious-days-modal" role="dialog" aria-modal="true" aria-labelledby="religious-title" aria-hidden="true" class="modal-layer fixed inset-0 bg-black/40 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm">
         <div class="settings-dialog-panel bg-white dark:bg-slate-900 w-full max-w-md p-5 sm:p-6 animate-slide-up transition-colors duration-300 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
             <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4 sm:hidden"></div>
             <div class="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">

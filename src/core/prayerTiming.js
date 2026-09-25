@@ -83,7 +83,19 @@ export function computeNextPrayerState({ prayerData, context, prayers, currentLa
         const lastPrayer = prayers[nextIndex - 1];
         lastPrayerTimeMs = timeToMs(today[lastPrayer.id], dayStartMs);
     } else if (nextIndex === 0) {
-        lastPrayerTimeMs = dayStartMs;
+        currentPrayerId = 'Yatsi';
+        const prevIndex = context.prayerIndex > 0 ? context.prayerIndex - 1 : (context.calendarIndex > 0 ? context.calendarIndex - 1 : -1);
+        if (prevIndex >= 0 && prayerData[prevIndex]) {
+            const prevDay = prayerData[prevIndex];
+            const prevDayStartMs = parseMiladiDate(prevDay.MiladiTarihKisa).getTime();
+            lastPrayerTimeMs = timeToMs(prevDay.Yatsi, prevDayStartMs);
+        } else {
+            lastPrayerTimeMs = dayStartMs - 4 * 3600000;
+        }
+
+        if (context.prayerIndex > context.calendarIndex) {
+            nextName = `${nextName} (${tomorrowText})`;
+        }
     }
 
     return {

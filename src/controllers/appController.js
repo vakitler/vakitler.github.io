@@ -290,15 +290,22 @@ export function createAppController({ createIcons, usedIcons }) {
     function init() {
         renderIcons();
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function start() {
             initTheme();
             applyLanguageTexts();
             motionCountdownController.setupHeroMotionObserver();
             motionCountdownController.updateMotionState();
             motionCountdownController.bindReducedMotionListener();
             bindDomEvents();
+            modalsController.bindEvents();
             bootstrapLocation();
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
     }
 
     return {

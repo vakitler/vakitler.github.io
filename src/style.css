@@ -495,8 +495,7 @@ html.dark .shimmer {
     background-image: linear-gradient(to right, #25282e 0%, #2c3038 20%, #25282e 40%, #25282e 100%);
 }
 
-html.motion-paused .hero-orb,
-html.motion-paused .shimmer {
+html.motion-paused .hero-orb {
     animation-play-state: paused !important;
 }
 
