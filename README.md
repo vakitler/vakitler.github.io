@@ -39,11 +39,15 @@ npm run preview
 ## PWA Dosyaları
 
 - `public/manifest.json`: Uygulama adı, tema ve ikon bilgileri
-- `public/sw.js`: Basit önbellekleme ve çevrimdışı geri dönüş davranışı
+- `public/sw.js`: Servis çalışanı, önbellekleme ve çevrimdışı geri dönüş davranışı
+- `public/icon-192.png`: PWA standart 192x192 uygulama ikonu
+- `public/icon-512.png`: PWA standart 512x512 uygulama ikonu
+- `public/apple-touch-icon.png`: iOS ana ekran ikonu
+- `public/favicon-32x32.png`: Tarayıcı sekme ikonu
 
 `sw.js` stratejisi:
 - API (`https://ezanvakti.emushaf.net`) çağrılarında **network-first** (önce ağ, hata durumunda cache)
-- API cache için TTL uygulanır (30 dakika); süresi dolan kayıtlar kullanılmadan silinir
+- API cache için TTL uygulanır (24 saat); süresi dolan kayıtlar kullanılmadan silinir
 - Aynı origin statik dosyalarda **cache-first**
 - Navigasyon isteklerinde çevrimdışı fallback olarak `index.html`
 
@@ -51,6 +55,7 @@ npm run preview
 
 - `public/robots.txt`: Arama motoru tarama yönlendirmesi
 - `public/sitemap.xml`: Ana sayfa için XML site haritası
+- `public/og-image.png`: Sosyal medya paylaşımları için kart önizleme görseli (1200x630)
 
 ## Katkıda Bulunma
 

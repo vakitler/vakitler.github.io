@@ -24,6 +24,8 @@ export function applyLanguageTexts({
     const buyCoffeeDescEl = getEl('buy-coffee-desc');
 
     langTextEl.innerText = currentLang === 'tr' ? 'EN' : 'TR';
+    document.documentElement.lang = currentLang;
+    document.title = t('appTitle');
     appTitleEl.innerText = t('appTitle');
     nextPrayerNameEl.innerText = t('nextPrayer');
     qiblaLabelEl.innerText = t('qiblaTime');

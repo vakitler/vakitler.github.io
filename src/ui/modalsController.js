@@ -29,7 +29,29 @@ export function createModalsController({ getEl, renderIcons, t, currentLang }) {
 
     function renderMonthlyTable() {
         const container = getEl('monthly-table-body');
-        if (!container || !currentPrayerData) return;
+        if (!container) return;
+
+        if (!currentPrayerData || currentPrayerData.length === 0) {
+            container.innerHTML = `
+                <tr>
+                    <td colspan="7" class="py-12 px-4 text-center">
+                        <div class="flex flex-col items-center justify-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-slate-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <i data-lucide="map-pin" class="w-6 h-6"></i>
+                            </div>
+                            <p class="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                ${t('locNotSelectedMonthly')}
+                            </p>
+                            <button type="button" onclick="window.toggleMonthlyModal(false); window.toggleSettings();" class="mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-md transition-all">
+                                ${t('openSettings')}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            renderIcons();
+            return;
+        }
 
         const printLoc = getEl('print-location-text');
         if (printLoc) {

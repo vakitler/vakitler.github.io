@@ -53,7 +53,9 @@ export const i18n = {
         ogle: 'Öğle',
         ikindi: 'İkindi',
         aksam: 'Akşam',
-        yatsi: 'Yatsı'
+        yatsi: 'Yatsı',
+        locNotSelectedMonthly: 'Aylık vakitleri görüntülemek için lütfen bir konum seçin.',
+        openSettings: 'Konum Seç'
     },
     en: {
         appTitle: 'Prayer Times',
@@ -108,6 +110,8 @@ export const i18n = {
         ogle: 'Dhuhr',
         ikindi: 'Asr',
         aksam: 'Maghrib',
-        yatsi: 'Isha'
+        yatsi: 'Isha',
+        locNotSelectedMonthly: 'Please select a location to view monthly prayer times.',
+        openSettings: 'Select Location'
     }
 };

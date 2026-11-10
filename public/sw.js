@@ -1,6 +1,6 @@
-const STATIC_CACHE = 'vakitler-static-v2';
-const RUNTIME_CACHE = 'vakitler-runtime-v2';
-const API_CACHE = 'vakitler-api-v2';
+const STATIC_CACHE = 'vakitler-static-v3';
+const RUNTIME_CACHE = 'vakitler-runtime-v3';
+const API_CACHE = 'vakitler-api-v3';
 const API_ORIGIN = 'https://ezanvakti.emushaf.net';
 const API_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -8,7 +8,12 @@ const APP_SHELL = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon.svg'
+  '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+  '/favicon-32x32.png',
+  '/og-image.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -89,9 +94,14 @@ async function networkFirst(request, cacheName) {
     }
     return networkResponse;
   } catch {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-    if (cachedResponse) return cachedResponse;
+    if (cacheName === API_CACHE) {
+      const validCache = await getValidApiCache(request);
+      if (validCache) return validCache;
+    } else {
+      const cache = await caches.open(cacheName);
+      const cachedResponse = await cache.match(request);
+      if (cachedResponse) return cachedResponse;
+    }
 
     return new Response(JSON.stringify({ error: 'Offline cache unavailable' }), {
       status: 503,
